@@ -6,7 +6,14 @@ from django.test import Client, TestCase
 
 from .models import SchoolProfile
 from .utils import format_student_id
+from datetime import timedelta
 
+from django.contrib.auth.models import AnonymousUser, Group
+from django.core.management import call_command
+from django.utils import timezone
+
+from .models import TemporaryGrant
+from .permissions import can
 
 class SchoolProfileTests(TestCase):
     def test_get_returns_the_same_single_profile(self):
@@ -73,3 +80,45 @@ class LoginTests(TestCase):
         client.login(username='tester', password='pass12345!')
         response = client.get('/')
         self.assertEqual(response.status_code, 200)
+
+class PermissionTests(TestCase):
+    def setUp(self):
+        call_command('sync_roles', verbosity=0)
+        self.teacher = User.objects.create_user('teacher1', password='pass12345!')
+        self.teacher.groups.add(Group.objects.get(name='Class teacher'))
+        self.bursar = User.objects.create_user('bursar1', password='pass12345!')
+        self.bursar.groups.add(Group.objects.get(name='Bursar'))
+
+    def test_role_gives_its_capabilities(self):
+        self.assertTrue(can(self.teacher, 'mark_attendance'))
+        self.assertFalse(can(self.teacher, 'collect_fees'))
+
+    def test_bursar_collects_fees_but_not_grades(self):
+        self.assertTrue(can(self.bursar, 'collect_fees'))
+        self.assertFalse(can(self.bursar, 'enter_grades'))
+
+    def test_temporary_grant_works_while_active(self):
+        TemporaryGrant.objects.create(
+            user=self.teacher, capability='collect_fees', reason='Bursar on leave',
+            ends_at=timezone.now() + timedelta(days=1),
+        )
+        self.assertTrue(can(self.teacher, 'collect_fees'))
+
+    def test_expired_grant_does_not_work(self):
+        now = timezone.now()
+        TemporaryGrant.objects.create(
+            user=self.teacher, capability='collect_fees', reason='Expired',
+            starts_at=now - timedelta(days=2), ends_at=now - timedelta(days=1),
+        )
+        self.assertFalse(can(self.teacher, 'collect_fees'))
+
+    def test_revoked_grant_does_not_work(self):
+        now = timezone.now()
+        TemporaryGrant.objects.create(
+            user=self.teacher, capability='collect_fees', reason='Revoked',
+            ends_at=now + timedelta(days=1), revoked_at=now,
+        )
+        self.assertFalse(can(self.teacher, 'collect_fees'))
+
+    def test_anonymous_user_has_nothing(self):
+        self.assertFalse(can(AnonymousUser(), 'view_students'))
