@@ -57,3 +57,19 @@ class RoleTests(TestCase):
             'Exams officer', 'Records officer', 'Read-only staff',
         }
         self.assertTrue(expected.issubset(set(Group.objects.values_list('name', flat=True))))
+from django.contrib.auth.models import User
+
+
+class LoginTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='tester', password='pass12345!')
+
+    def test_home_redirects_when_logged_out(self):
+        response = Client().get('/')
+        self.assertEqual(response.status_code, 302)
+
+    def test_home_loads_when_logged_in(self):
+        client = Client()
+        client.login(username='tester', password='pass12345!')
+        response = client.get('/')
+        self.assertEqual(response.status_code, 200)
