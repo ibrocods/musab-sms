@@ -1,0 +1,1 @@
+Stage 0 status: complete (settings split, SchoolProfile, colours and ID pattern, tests)
