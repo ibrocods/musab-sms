@@ -1,0 +1,3 @@
+Bootstrap 5.3.8-dist (MIT), downloaded from getbootstrap.com, dist zip
+Bootstrap Icons-1.13.2(MIT), downloaded from github.com/twbs/icons/releases
+Downloaded on: 07-NOV-26
