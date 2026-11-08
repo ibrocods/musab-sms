@@ -1,0 +1,93 @@
+Here's a questionnaire you can take with you. It's organized so you can work through it in one or two sessions, and you can fill in answers directly on the page.
+
+---
+
+**School Management System: Requirements Questionnaire**
+
+**Part 1: The School at a Glance**
+
+1. School name and type (primary, secondary, both):
+2. Number of students (current and expected growth):
+3. Number of classes and sections:
+4. Number of teaching and non-teaching staff:
+5. Academic calendar (number of terms, term dates, exam periods):
+6. What is the biggest problem with how things work now?
+7. What takes the most time each week?
+
+**Part 2: Students**
+
+8. What information is recorded for each student? (name, date of birth, parent contacts, address, medical notes, photo, etc.)
+9. How are student IDs assigned, if at all?
+10. What happens when a student transfers in or out mid-term?
+11. How are students grouped (class, stream, house, subject combinations)?
+
+**Part 3: Attendance**
+
+12. How is attendance taken today? (register, board, spreadsheet, other)
+13. How often is it taken? (each lesson, once daily, other)
+14. Who records it, and who needs to see it?
+15. What reports are produced from attendance, and how often?
+16. What do you do with late arrivals and absences with excuses?
+
+**Part 4: Classes and Timetable**
+
+17. How are classes and subjects assigned to teachers?
+18. Is there a timetable? How is it made and by whom?
+19. How often does the timetable change during a term?
+
+**Part 5: Grades and Assessment**
+
+20. How are grades recorded today? (exercise books, sheets, spreadsheets, other)
+21. What grading scale is used (letter grades, percentages, points, other)?
+22. What assessments are there (tests, exams, continuous assessment), and how are they weighted?
+23. How are subject positions and overall class positions calculated?
+
+**Part 6: Report Cards**
+
+24. Can you share a sample or photo of a current report card?
+25. Which fields are filled in by hand, and which are calculated?
+26. Who signs off on report cards, and who receives them?
+27. Are there comments (teacher's, head teacher's) and how long are they?
+28. Do report cards need to be printed in a specific format for the ministry or board?
+
+**Part 7: Fees and Payments**
+
+29. How are fees structured (per term, per year, per item)?
+30. How are payments recorded, and what receipts are issued?
+31. How do you track debtors and outstanding balances?
+32. Are there scholarships, discounts, or payment plans to handle?
+33. Who has access to financial records?
+
+**Part 8: Users and Permissions**
+
+34. Who will use the system? (head teacher, bursar, class teachers, parents, others)
+35. What should each role be allowed to see and change?
+36. Will parents or students ever log in, or is this staff-only?
+37. How many people need to use it at the same time?
+
+**Part 9: Current Data and Import**
+
+38. What do you currently store, and where? (paper files, Excel, a previous software package)
+39. Can you share a sample of existing data (anonymized if needed)?
+40. How much historical data needs to be carried over? (current term only, current year, several years)
+41. Are there known data problems? (duplicate names, inconsistent formats, missing records)
+
+**Part 10: Offline Setup and Practicalities**
+
+42. Where will the system run? (one office computer, several machines, other)
+43. What hardware is available? (computers, printers, UPS, network cables or Wi-Fi)
+44. What operating system is used on those machines?
+45. Who will be responsible for backups?
+46. Who will handle day-to-day problems after handover?
+
+**Part 11: Priorities**
+
+47. Rank these from most to least important: attendance, grades, report cards, fees, timetable, student records, reports.
+48. What must be working on day one? What can wait until later?
+49. What would make this a failure in your eyes?
+
+---
+
+**Tip:** Once you've collected the answers, turn them into the three-list write-up (must have now, nice to have later, not needed) and read it back to the client before you start coding.
+
+If you tell me which sections matter most for this school, I can trim the questionnaire or add questions specific to its setup.
