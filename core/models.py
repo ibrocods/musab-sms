@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils import timezone
-
+from .utils import format_student_id
 from .capabilities import CAPABILITIES
 
 
@@ -72,6 +72,10 @@ class TemporaryGrant(models.Model):
         if self.starts_at and self.ends_at and self.ends_at <= self.starts_at:
             raise ValidationError('The end date must be after the start date.')
 
+def current_year():
+    return timezone.now().year
+
+
 class SchoolClass(models.Model):
     name = models.CharField(max_length=50, unique=True, help_text='For example JSS1A or SS2 Science')
     level = models.CharField(max_length=50, blank=True, help_text='For example JSS1 or SS2')
@@ -93,3 +97,83 @@ class SchoolClass(models.Model):
 
     def __str__(self):
         return self.name
+class Student(models.Model):
+    GENDER_CHOICES = [('M', 'Male'), ('F', 'Female')]
+
+    student_id = models.CharField(max_length=50, unique=True, editable=False, blank=True)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    date_of_birth = models.DateField(null=True, blank=True)
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True)
+    admission_year = models.PositiveIntegerField(
+        default=current_year, help_text='Used in the student ID pattern',
+    )
+    school_class = models.ForeignKey(
+        SchoolClass, on_delete=models.SET_NULL, null=True, blank=True, related_name='students',
+    )
+    parent_name = models.CharField(max_length=200, blank=True)
+    parent_phone = models.CharField(max_length=30, blank=True)
+    parent_email = models.EmailField(blank=True)
+    address = models.TextField(blank=True)
+    is_archived = models.BooleanField(default=False)
+    archived_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['last_name', 'first_name']
+
+    def __str__(self):
+        return f'{self.last_name} {self.first_name} ({self.student_id})'
+
+    def save(self, *args, **kwargs):
+        if not self.student_id:
+            self.student_id = self._next_student_id()
+        super().save(*args, **kwargs)
+
+    def _next_student_id(self):
+        pattern = SchoolProfile.get().student_id_pattern
+        if '{seq' not in pattern:
+            raise ValueError('The student ID pattern must include {seq}, for example {year}/{seq:04d}.')
+        # Counting every student, including archived ones, means IDs are never reused
+        seq = Student.objects.filter(admission_year=self.admission_year).count() + 1
+        while True:
+            candidate = format_student_id(pattern, self.admission_year, seq)
+            if not Student.objects.filter(student_id=candidate).exists():
+                return candidate
+            seq += 1
+
+class AuditLog(models.Model):
+    ACTIONS = [
+        ('create', 'Created'),
+        ('update', 'Changed'),
+        ('delete', 'Deleted'),
+        ('login', 'Signed in'),
+        ('logout', 'Signed out'),
+    ]
+
+    timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='+',
+    )
+    username = models.CharField(max_length=150, blank=True, help_text='Kept even if the account is removed')
+    action = models.CharField(max_length=10, choices=ACTIONS)
+    model_name = models.CharField(max_length=100)
+    object_id = models.CharField(max_length=50, blank=True)
+    object_repr = models.CharField(max_length=255, blank=True)
+    changes = models.JSONField(default=dict, blank=True, help_text='Field name: [old value, new value]')
+
+    class Meta:
+        ordering = ['-timestamp']
+        verbose_name = 'audit entry'
+        verbose_name_plural = 'audit log'
+
+    def __str__(self):
+        return f'{self.timestamp:%Y-%m-%d %H:%M} {self.username or "system"} {self.action} {self.object_repr}'
+
+    def save(self, *args, **kwargs):
+        if not self._state.adding:
+            raise PermissionError('Audit entries cannot be changed.')
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        raise PermissionError('Audit entries cannot be deleted.')

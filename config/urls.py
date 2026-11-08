@@ -19,10 +19,14 @@ from django.contrib.admin import views
 from core import views
 from django.urls import path
 from django.contrib.auth import views as auth_views
+from core import student_views
 urlpatterns = [
     path('admin/', admin.site.urls),
      path('', views.home, name='home'),
      path('school.css', views.school_css, name='school_css'),
     path('accounts/login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('students/', student_views.student_list, name='student_list'),
+    path('students/add/', student_views.student_create, name='student_create'),
+    path('students/<int:pk>/archive/', student_views.student_archive, name='student_archive'),
 ]
