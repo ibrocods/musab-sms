@@ -46,3 +46,14 @@ class StylesheetTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn('--school-primary: #8B0000', response.content.decode())
+
+from django.contrib.auth.models import Group
+
+
+class RoleTests(TestCase):
+    def test_all_staff_roles_exist(self):
+        expected = {
+            'Head teacher', 'Bursar', 'Class teacher', 'Subject teacher',
+            'Exams officer', 'Records officer', 'Read-only staff',
+        }
+        self.assertTrue(expected.issubset(set(Group.objects.values_list('name', flat=True))))
