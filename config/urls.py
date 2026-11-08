@@ -22,4 +22,5 @@ from django.urls import path
 urlpatterns = [
     path('admin/', admin.site.urls),
      path('', views.home, name='home'),
+     path('school.css', views.school_css, name='school_css'),
 ]

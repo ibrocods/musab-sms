@@ -1,0 +1,4 @@
+:root {
+  --school-primary: {{ school_primary }};
+  --school-accent: {{ school_accent }};
+}

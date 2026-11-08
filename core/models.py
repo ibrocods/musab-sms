@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.core.validators import RegexValidator
 
 class SchoolProfile(models.Model):
     name = models.CharField(max_length=200, default='My School')
@@ -17,7 +17,16 @@ class SchoolProfile(models.Model):
         max_length=100, default='{year}/{seq:04d}',
         help_text='Example: {year}/{seq:04d} gives 2026/0001',
     )
-
+    primary_colour = models.CharField(
+        max_length=7, default='#1F4E78',
+        validators=[RegexValidator(r'^#[0-9A-Fa-f]{6}$', 'Use a hex colour such as #1F4E78.')],
+        help_text='Hex colour, for example #1F4E78',
+    )
+    accent_colour = models.CharField(
+        max_length=7, default='#F2A900',
+        validators=[RegexValidator(r'^#[0-9A-Fa-f]{6}$', 'Use a hex colour such as #F2A900.')],
+        help_text='Hex colour, for example #F2A900',
+    )
     class Meta:
         verbose_name = 'School profile'
 
