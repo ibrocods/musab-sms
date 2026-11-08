@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils import timezone
-
+from .models import SchoolClass
 from .models import SchoolProfile, TemporaryGrant
 
 
@@ -29,3 +29,9 @@ class TemporaryGrantAdmin(admin.ModelAdmin):
     @admin.action(description='Revoke selected grants now')
     def revoke_selected(self, request, queryset):
         queryset.filter(revoked_at__isnull=True).update(revoked_at=timezone.now())
+
+@admin.register(SchoolClass)
+class SchoolClassAdmin(admin.ModelAdmin):
+    list_display = ('name', 'level', 'stream', 'class_teacher', 'is_active')
+    list_filter = ('level', 'is_active')
+    search_fields = ('name',)

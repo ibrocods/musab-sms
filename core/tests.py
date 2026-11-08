@@ -14,6 +14,9 @@ from django.utils import timezone
 
 from .models import TemporaryGrant
 from .permissions import can
+from .models import SchoolClass
+from .scope import visible_classes
+
 
 class SchoolProfileTests(TestCase):
     def test_get_returns_the_same_single_profile(self):
@@ -122,3 +125,29 @@ class PermissionTests(TestCase):
 
     def test_anonymous_user_has_nothing(self):
         self.assertFalse(can(AnonymousUser(), 'view_students'))
+
+class ClassScopeTests(TestCase):
+    def setUp(self):
+        call_command('sync_roles', verbosity=0)
+        self.teacher = User.objects.create_user('teacher2', password='pass12345!')
+        self.teacher.groups.add(Group.objects.get(name='Class teacher'))
+        self.head = User.objects.create_user('head2', password='pass12345!')
+        self.head.groups.add(Group.objects.get(name='Head teacher'))
+
+        self.own_class = SchoolClass.objects.create(name='JSS1A', class_teacher=self.teacher)
+        self.other_class = SchoolClass.objects.create(name='JSS2B')
+
+    def test_class_teacher_sees_only_their_class(self):
+        classes = list(visible_classes(self.teacher))
+        self.assertEqual(classes, [self.own_class])
+
+    def test_head_teacher_sees_all_classes(self):
+        self.assertEqual(visible_classes(self.head).count(), 2)
+
+    def test_anonymous_user_sees_nothing(self):
+        from django.contrib.auth.models import AnonymousUser
+        self.assertEqual(visible_classes(AnonymousUser()).count(), 0)
+
+    def test_user_with_no_role_sees_nothing(self):
+        plain = User.objects.create_user('plain', password='pass12345!')
+        self.assertEqual(visible_classes(plain).count(), 0)

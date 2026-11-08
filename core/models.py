@@ -71,3 +71,25 @@ class TemporaryGrant(models.Model):
     def clean(self):
         if self.starts_at and self.ends_at and self.ends_at <= self.starts_at:
             raise ValidationError('The end date must be after the start date.')
+
+class SchoolClass(models.Model):
+    name = models.CharField(max_length=50, unique=True, help_text='For example JSS1A or SS2 Science')
+    level = models.CharField(max_length=50, blank=True, help_text='For example JSS1 or SS2')
+    stream = models.CharField(max_length=50, blank=True, help_text='Optional, for example Science or Arts')
+    class_teacher = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='classes_taught',
+        limit_choices_to={'groups__name': 'Class teacher'},
+    )
+    is_active = models.BooleanField(default=True, help_text='Untick when a class is no longer running')
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = 'class'
+        verbose_name_plural = 'classes'
+
+    def __str__(self):
+        return self.name
