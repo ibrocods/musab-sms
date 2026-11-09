@@ -3,9 +3,9 @@ from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 
 from .middleware import get_current_user
-from .models import AuditLog, SchoolClass, SchoolProfile, Student, TemporaryGrant, Term
+from .models import AuditLog, SchoolClass, SchoolProfile, Score, Student, Term, TemporaryGrant
 
-TRACKED = (SchoolProfile, SchoolClass, Student, Term, TemporaryGrant)
+TRACKED = (SchoolProfile, SchoolClass, Student, Term, Score, TemporaryGrant)
 
 
 def _clean(value):

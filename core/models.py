@@ -288,3 +288,31 @@ class Assessment(models.Model):
 
     def __str__(self):
         return f'{self.subject} {self.term} - {self.name}'
+
+
+    
+class Score(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='scores')
+    assessment = models.ForeignKey(Assessment, on_delete=models.CASCADE, related_name='scores')
+    score = models.DecimalField(
+        max_digits=6, decimal_places=2,
+        validators=[MinValueValidator(0)],
+        help_text='Mark obtained, out of the assessment maximum',
+    )
+    entered_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='+',
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['assessment', 'student']
+        constraints = [
+            models.UniqueConstraint(fields=['student', 'assessment'], name='unique_score_per_assessment'),
+        ]
+
+    def __str__(self):
+        return f'{self.student} - {self.assessment}: {self.score}'
+
+    def clean(self):
+        if self.assessment_id and self.score is not None and self.score > self.assessment.max_mark:
+            raise ValidationError(f'The score cannot be more than {self.assessment.max_mark}.')

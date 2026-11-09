@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils import timezone
 from .models import (
     AuditLog, GradeBand, SchoolClass, SchoolProfile, Student, Subject, ClassSubject,
-    Assessment, Term, TemporaryGrant,
+    Assessment, Term, TemporaryGrant, Score,
 )
 
 class SuperuserOnlyAdmin(admin.ModelAdmin):
@@ -125,3 +125,10 @@ class AssessmentAdmin(admin.ModelAdmin):
 class ClassSubjectAdmin(admin.ModelAdmin):
     list_display = ('school_class', 'subject', 'teacher')
     list_filter = ('school_class', 'subject')
+
+
+@admin.register(Score)
+class ScoreAdmin(SuperuserOnlyAdmin):
+    list_display = ('student', 'assessment', 'score', 'entered_by', 'updated_at')
+    list_filter = ('assessment__term', 'assessment__subject')
+    search_fields = ('student__student_id', 'student__last_name')

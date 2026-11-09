@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.contrib.admin import views
-from core import views
+from core import views, score_views
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from core import student_views
@@ -29,4 +29,6 @@ urlpatterns = [
     path('students/', student_views.student_list, name='student_list'),
     path('students/add/', student_views.student_create, name='student_create'),
     path('students/<int:pk>/archive/', student_views.student_archive, name='student_archive'),
+    path('scores/', score_views.score_index, name='score_index'),
+    path('scores/<int:class_subject_pk>/<int:assessment_pk>/', score_views.score_entry, name='score_entry'),
 ]

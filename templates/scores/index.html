@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Scores{% endblock %}
+{% block content %}
+<h1 class="h4 mb-3">Enter scores{% if term %}: {{ term }}{% endif %}</h1>
+
+{% if not term %}
+  <div class="alert alert-warning">No current term is set. Ask the administrator to mark one term as current.</div>
+{% elif not entries %}
+  <div class="text-muted">You have no classes to enter scores for this term.</div>
+{% else %}
+  {% for entry in entries %}
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <h2 class="h6 mb-2">{{ entry.class_subject.subject }} - {{ entry.class_subject.school_class }}</h2>
+      {% for assessment in entry.assessments %}
+        <a class="btn btn-sm btn-outline-secondary me-2 mt-1"
+           href="{% url 'score_entry' entry.class_subject.pk assessment.pk %}">
+          {{ assessment.name }} (out of {{ assessment.max_mark }})
+        </a>
+      {% empty %}
+        <span class="text-muted small">No assessments set up for this subject this term.</span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+{% endif %}
+{% endblock %}
