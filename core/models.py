@@ -230,3 +230,61 @@ class Term(models.Model):
                 other.is_current = False
                 other.save()
         super().save(*args, **kwargs)
+
+class Subject(models.Model):
+    name = models.CharField(max_length=100, unique=True, help_text='For example Mathematics')
+    code = models.CharField(max_length=20, blank=True, help_text='Short code, for example MTH')
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
+class ClassSubject(models.Model):
+    """Which subject a class studies, and which teacher teaches it."""
+
+    school_class = models.ForeignKey(SchoolClass, on_delete=models.CASCADE, related_name='class_subjects')
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='class_subjects')
+    teacher = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='teaching_assignments',
+        limit_choices_to={'groups__name__in': ['Subject teacher', 'Class teacher']},
+    )
+
+    class Meta:
+        ordering = ['school_class__name', 'subject__name']
+        constraints = [
+            models.UniqueConstraint(fields=['school_class', 'subject'], name='unique_class_subject'),
+        ]
+
+    def __str__(self):
+        return f'{self.subject} - {self.school_class}'
+
+
+class Assessment(models.Model):
+    """One part of a subject's final score, such as First Test or Exam."""
+
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='assessments')
+    term = models.ForeignKey(Term, on_delete=models.CASCADE, related_name='assessments')
+    name = models.CharField(max_length=50, help_text='For example First Test or Exam')
+    max_mark = models.DecimalField(max_digits=6, decimal_places=2, default=100)
+    weight = models.DecimalField(
+        max_digits=5, decimal_places=2,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        help_text='Share of the final score, out of 100. All weights for a subject and term must total 100.',
+    )
+
+    class Meta:
+        ordering = ['term', 'subject', 'name']
+        constraints = [
+            models.UniqueConstraint(fields=['subject', 'term', 'name'], name='unique_assessment_name'),
+        ]
+
+    def __str__(self):
+        return f'{self.subject} {self.term} - {self.name}'

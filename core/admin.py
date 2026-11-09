@@ -1,7 +1,9 @@
 from django.contrib import admin
 from django.utils import timezone
-from .models import GradeBand, SchoolClass, SchoolProfile, Student, TemporaryGrant, AuditLog,  TemporaryGrant,  Term, TemporaryGrant
-
+from .models import (
+    AuditLog, GradeBand, SchoolClass, SchoolProfile, Student, Subject, ClassSubject,
+    Assessment, Term, TemporaryGrant,
+)
 
 class SuperuserOnlyAdmin(admin.ModelAdmin):
     def has_module_permission(self, request):
@@ -86,3 +88,40 @@ class GradeBandAdmin(admin.ModelAdmin):
 class TermAdmin(admin.ModelAdmin):
     list_display = ('name', 'session', 'term_number', 'start_date', 'end_date', 'is_current')
     list_filter = ('session', 'is_current')
+
+
+from django.core.exceptions import ValidationError as DjangoValidationError
+from .assessments import check_weights
+
+
+class ClassSubjectInline(admin.TabularInline):
+    model = ClassSubject
+    extra = 1
+
+
+@admin.register(Subject)
+class SubjectAdmin(admin.ModelAdmin):
+    list_display = ('name', 'code', 'is_active')
+    list_filter = ('is_active',)
+    search_fields = ('name', 'code')
+    inlines = [ClassSubjectInline]
+
+
+@admin.register(Assessment)
+class AssessmentAdmin(admin.ModelAdmin):
+    list_display = ('subject', 'term', 'name', 'max_mark', 'weight')
+    list_filter = ('term', 'subject')
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        try:
+            check_weights(obj.subject, obj.term)
+        except DjangoValidationError as error:
+            # Show the problem to the user without losing the saved row
+            self.message_user(request, ' '.join(error.messages), level='WARNING')
+
+
+@admin.register(ClassSubject)
+class ClassSubjectAdmin(admin.ModelAdmin):
+    list_display = ('school_class', 'subject', 'teacher')
+    list_filter = ('school_class', 'subject')
