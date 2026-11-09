@@ -31,4 +31,5 @@ urlpatterns = [
     path('students/<int:pk>/archive/', student_views.student_archive, name='student_archive'),
     path('scores/', score_views.score_index, name='score_index'),
     path('scores/<int:class_subject_pk>/<int:assessment_pk>/', score_views.score_entry, name='score_entry'),
+    path('scores/<int:class_subject_pk>/term/<int:term_pk>/lock/', score_views.result_lock, name='result_lock'),
 ]

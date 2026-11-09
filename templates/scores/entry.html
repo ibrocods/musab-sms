@@ -4,8 +4,39 @@
 <h1 class="h4 mb-1">{{ assessment.name }}: {{ class_subject.subject }}</h1>
 <p class="text-muted mb-3">
   {{ class_subject.school_class }}, {{ assessment.term }}. Out of {{ assessment.max_mark }}.
-  Leave a mark blank to remove it.
 </p>
+
+{% if locked %}
+  <div class="alert alert-secondary">
+    These results are locked. Marks cannot be changed until a head teacher or exams officer unlocks them.
+  </div>
+{% endif %}
+
+{% if can_lock %}
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      {% if locked %}
+        <form method="post" action="{% url 'result_lock' class_subject.pk assessment.term.pk %}" class="row g-2 align-items-center">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="unlock">
+          <div class="col-md-6">
+            <input type="text" name="reason" class="form-control" maxlength="200" required
+                   placeholder="Reason for unlocking, for example Wrong mark on script">
+          </div>
+          <div class="col-md-auto">
+            <button type="submit" class="btn btn-outline-danger">Unlock results</button>
+          </div>
+        </form>
+      {% else %}
+        <form method="post" action="{% url 'result_lock' class_subject.pk assessment.term.pk %}">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="lock">
+          <button type="submit" class="btn btn-school">Lock results for this subject and term</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}
 
 <form method="post">
   {% csrf_token %}
@@ -23,7 +54,8 @@
             <td>
               <input type="number" step="0.01" min="0" max="{{ assessment.max_mark }}"
                      name="score_{{ row.student.pk }}" value="{{ row.value }}"
-                     class="form-control form-control-sm {% if row.error %}is-invalid{% endif %}">
+                     class="form-control form-control-sm {% if row.error %}is-invalid{% endif %}"
+                     {% if locked %}disabled{% endif %}>
               {% if row.error %}<div class="invalid-feedback">{{ row.error }}</div>{% endif %}
             </td>
           </tr>
@@ -35,7 +67,7 @@
     </div>
   </div>
 
-  {% if rows %}<button type="submit" class="btn btn-school mt-3">Save marks</button>{% endif %}
+  {% if rows and not locked %}<button type="submit" class="btn btn-school mt-3">Save marks</button>{% endif %}
   <a href="{% url 'score_index' %}" class="ms-2">Back</a>
 </form>
 {% endblock %}

@@ -11,7 +11,7 @@
   {% for entry in entries %}
   <div class="card shadow-sm mb-3">
     <div class="card-body">
-      <h2 class="h6 mb-2">{{ entry.class_subject.subject }} - {{ entry.class_subject.school_class }}</h2>
+      <h2 class="h6 mb-2">{{ entry.class_subject.subject }} - {{ entry.class_subject.school_class }} {% if entry.locked %}<span class="badge bg-secondary ms-2">Locked</span>{% endif %}</h2>
       {% for assessment in entry.assessments %}
         <a class="btn btn-sm btn-outline-secondary me-2 mt-1"
            href="{% url 'score_entry' entry.class_subject.pk assessment.pk %}">

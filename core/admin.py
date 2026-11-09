@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils import timezone
 from .models import (
     AuditLog, GradeBand, SchoolClass, SchoolProfile, Student, Subject, ClassSubject,
-    Assessment, Term, TemporaryGrant, Score,
+    Assessment, Term, TemporaryGrant, Score, ResultLock, 
 )
 
 class SuperuserOnlyAdmin(admin.ModelAdmin):
@@ -132,3 +132,23 @@ class ScoreAdmin(SuperuserOnlyAdmin):
     list_display = ('student', 'assessment', 'score', 'entered_by', 'updated_at')
     list_filter = ('assessment__term', 'assessment__subject')
     search_fields = ('student__student_id', 'student__last_name')
+
+
+@admin.register(ResultLock)
+class ResultLockAdmin(admin.ModelAdmin):
+    # Locks are set through the Scores pages so every change has a reason
+    list_display = ('class_subject', 'term', 'is_locked', 'locked_by', 'locked_at', 'unlocked_by', 'unlocked_at')
+    list_filter = ('is_locked', 'term')
+    readonly_fields = (
+        'class_subject', 'term', 'is_locked', 'locked_by', 'locked_at',
+        'unlocked_by', 'unlocked_at', 'unlock_reason',
+    )
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False

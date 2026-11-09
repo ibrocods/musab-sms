@@ -3,7 +3,9 @@ from decimal import Decimal, InvalidOperation
 from django.core.exceptions import ValidationError
 
 from .grading import grade_for
-from .models import Score
+from .models import ClassSubject, Score
+
+from .locking import is_locked
 
 
 def can_enter_scores(user, class_subject):
@@ -38,6 +40,14 @@ def parse_score(raw, max_mark):
 
 def save_score(student, assessment, value, user):
     """Save one mark. A blank value removes the existing mark."""
+    class_subject = ClassSubject.objects.filter(
+        school_class=student.school_class, subject=assessment.subject,
+    ).first()
+    if class_subject and is_locked(class_subject, assessment.term):
+        raise ValidationError(
+            'These results are locked. A head teacher or exams officer must unlock them first.'
+        )
+
     if value is None:
         Score.objects.filter(student=student, assessment=assessment).delete()
         return

@@ -316,3 +316,29 @@ class Score(models.Model):
     def clean(self):
         if self.assessment_id and self.score is not None and self.score > self.assessment.max_mark:
             raise ValidationError(f'The score cannot be more than {self.assessment.max_mark}.')
+
+
+class ResultLock(models.Model):
+    """Whether one class's results for one subject and term are locked."""
+
+    class_subject = models.ForeignKey(ClassSubject, on_delete=models.CASCADE, related_name='result_locks')
+    term = models.ForeignKey(Term, on_delete=models.CASCADE, related_name='result_locks')
+    is_locked = models.BooleanField(default=False)
+    locked_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='+',
+    )
+    locked_at = models.DateTimeField(null=True, blank=True)
+    unlocked_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='+',
+    )
+    unlocked_at = models.DateTimeField(null=True, blank=True)
+    unlock_reason = models.CharField(max_length=200, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['class_subject', 'term'], name='unique_result_lock'),
+        ]
+
+    def __str__(self):
+        state = 'locked' if self.is_locked else 'open'
+        return f'{self.class_subject} {self.term} ({state})'
