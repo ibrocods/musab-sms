@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils import timezone
-
+from .models import AuditLog, GradeBand, SchoolClass, SchoolProfile, Student, TemporaryGrant
 from .models import AuditLog, SchoolClass, SchoolProfile, Student, TemporaryGrant
 
 
@@ -78,3 +78,7 @@ class AuditLogAdmin(SuperuserOnlyAdmin):
 
     def has_change_permission(self, request, obj=None):
         return False
+
+@admin.register(GradeBand)
+class GradeBandAdmin(admin.ModelAdmin):
+    list_display = ('grade', 'remark', 'min_score')

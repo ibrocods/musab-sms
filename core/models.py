@@ -5,7 +5,7 @@ from django.db import models
 from django.utils import timezone
 from .utils import format_student_id
 from .capabilities import CAPABILITIES
-
+from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 
 class SchoolProfile(models.Model):
     name = models.CharField(max_length=200, default='My School')
@@ -177,3 +177,22 @@ class AuditLog(models.Model):
 
     def delete(self, *args, **kwargs):
         raise PermissionError('Audit entries cannot be deleted.')
+
+class GradeBand(models.Model):
+    grade = models.CharField(max_length=5, help_text='For example A, B2 or F9')
+    remark = models.CharField(max_length=50, help_text='For example Excellent')
+    min_score = models.DecimalField(
+        max_digits=5, decimal_places=2,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        help_text='The lowest score that earns this grade, from 0 to 100',
+    )
+
+    class Meta:
+        ordering = ['-min_score']
+        constraints = [
+            models.UniqueConstraint(fields=['grade'], name='unique_band_grade'),
+            models.UniqueConstraint(fields=['min_score'], name='unique_band_min_score'),
+        ]
+
+    def __str__(self):
+        return f'{self.grade} ({self.min_score}+) {self.remark}'
