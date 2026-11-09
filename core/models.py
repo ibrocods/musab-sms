@@ -196,3 +196,37 @@ class GradeBand(models.Model):
 
     def __str__(self):
         return f'{self.grade} ({self.min_score}+) {self.remark}'
+    
+
+class Term(models.Model):
+    session = models.CharField(
+        max_length=20,
+        validators=[RegexValidator(r'^\d{4}/\d{4}$', 'Use the form 2026/2027.')],
+        help_text='For example 2026/2027',
+    )
+    term_number = models.PositiveSmallIntegerField(help_text='1, 2 or 3, depending on the school')
+    name = models.CharField(max_length=50, help_text='For example First Term')
+    start_date = models.DateField()
+    end_date = models.DateField()
+    is_current = models.BooleanField(default=False, help_text='Only one term can be current')
+
+    class Meta:
+        ordering = ['-session', 'term_number']
+        constraints = [
+            models.UniqueConstraint(fields=['session', 'term_number'], name='unique_term_per_session'),
+        ]
+
+    def __str__(self):
+        return f'{self.name} {self.session}'
+
+    def clean(self):
+        if self.start_date and self.end_date and self.end_date <= self.start_date:
+            raise ValidationError('The end date must be after the start date.')
+
+    def save(self, *args, **kwargs):
+        if self.is_current:
+            # Clear the current flag on any other term, one save at a time so the audit log sees it
+            for other in Term.objects.filter(is_current=True).exclude(pk=self.pk):
+                other.is_current = False
+                other.save()
+        super().save(*args, **kwargs)

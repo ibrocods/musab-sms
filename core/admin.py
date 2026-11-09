@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.utils import timezone
-from .models import AuditLog, GradeBand, SchoolClass, SchoolProfile, Student, TemporaryGrant
-from .models import AuditLog, SchoolClass, SchoolProfile, Student, TemporaryGrant
+from .models import GradeBand, SchoolClass, SchoolProfile, Student, TemporaryGrant, AuditLog,  TemporaryGrant,  Term, TemporaryGrant
 
 
 class SuperuserOnlyAdmin(admin.ModelAdmin):
@@ -82,3 +81,8 @@ class AuditLogAdmin(SuperuserOnlyAdmin):
 @admin.register(GradeBand)
 class GradeBandAdmin(admin.ModelAdmin):
     list_display = ('grade', 'remark', 'min_score')
+
+@admin.register(Term)
+class TermAdmin(admin.ModelAdmin):
+    list_display = ('name', 'session', 'term_number', 'start_date', 'end_date', 'is_current')
+    list_filter = ('session', 'is_current')
