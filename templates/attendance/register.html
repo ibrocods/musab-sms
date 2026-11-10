@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Register: {{ school_class.name }}{% endblock %}
+{% block content %}
+<h1 class="h4 mb-1">Register: {{ school_class.name }}</h1>
+<p class="text-muted mb-3">{{ day|date:"l, j F Y" }}{% if term %}, {{ term }}{% endif %}</p>
+
+<form method="get" class="row g-2 align-items-end mb-3">
+  <div class="col-auto">
+    <label class="form-label small mb-1" for="date">Date</label>
+    <input type="date" id="date" name="date" value="{{ day|date:'Y-m-d' }}" class="form-control">
+  </div>
+  <div class="col-auto">
+    <button type="submit" class="btn btn-outline-secondary">Show date</button>
+  </div>
+</form>
+
+{% if not allowed %}
+  <div class="alert alert-secondary">You can view this register but not change it.</div>
+{% endif %}
+
+<form method="post">
+  {% csrf_token %}
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table mb-0 align-middle">
+        <thead>
+          <tr><th>ID</th><th>Name</th><th style="width: 200px;">Status</th></tr>
+        </thead>
+        <tbody>
+        {% for row in rows %}
+          <tr>
+            <td>{{ row.student.student_id }}</td>
+            <td>{{ row.student.last_name }} {{ row.student.first_name }}</td>
+            <td>
+              <select name="status_{{ row.student.pk }}" class="form-select form-select-sm" {% if not allowed %}disabled{% endif %}>
+                <option value="">-</option>
+                {% for code, label in status_choices %}
+                  <option value="{{ code }}" {% if row.status == code %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="3" class="text-muted">No students in this class.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% if allowed and rows %}
+    <button type="submit" class="btn btn-school mt-3">Save register</button>
+  {% endif %}
+  <a href="{% url 'attendance_index' %}" class="ms-2">Back</a>
+</form>
+{% endblock %}

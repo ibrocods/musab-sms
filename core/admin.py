@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils import timezone
 from .models import (
     AuditLog, GradeBand, SchoolClass, SchoolProfile, Student, Subject, ClassSubject,
-    Assessment, Term, TemporaryGrant, Score, ResultLock, 
+    Assessment, Term, TemporaryGrant, Score, ResultLock, AttendanceRecord
 )
 
 class SuperuserOnlyAdmin(admin.ModelAdmin):
@@ -152,3 +152,10 @@ class ResultLockAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+@admin.register(AttendanceRecord)
+class AttendanceRecordAdmin(SuperuserOnlyAdmin):
+    list_display = ('date', 'student', 'school_class', 'status', 'marked_by')
+    list_filter = ('date', 'school_class', 'status')
+    search_fields = ('student__student_id', 'student__last_name')

@@ -342,3 +342,33 @@ class ResultLock(models.Model):
     def __str__(self):
         state = 'locked' if self.is_locked else 'open'
         return f'{self.class_subject} {self.term} ({state})'
+    
+
+class AttendanceRecord(models.Model):
+    STATUS_CHOICES = [
+        ('P', 'Present'),
+        ('A', 'Absent'),
+        ('L', 'Late'),
+        ('E', 'Excused'),
+    ]
+
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='attendance')
+    school_class = models.ForeignKey(SchoolClass, on_delete=models.CASCADE, related_name='attendance')
+    term = models.ForeignKey(Term, on_delete=models.CASCADE, related_name='attendance')
+    date = models.DateField()
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES)
+    note = models.CharField(max_length=200, blank=True)
+    marked_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='+',
+    )
+    marked_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-date', 'student']
+        verbose_name = 'attendance record'
+        constraints = [
+            models.UniqueConstraint(fields=['student', 'date'], name='unique_attendance_per_day'),
+        ]
+
+    def __str__(self):
+        return f'{self.student} {self.date:%Y-%m-%d}: {self.get_status_display()}'

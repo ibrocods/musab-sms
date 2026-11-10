@@ -22,6 +22,9 @@
 {% if perms.core.enter_grades %}
   <a class="nav-link text-white ms-3" href="{% url 'score_index' %}">Scores</a>
 {% endif %}
+{% if perms.core.view_attendance %}
+  <a class="nav-link text-white ms-3" href="{% url 'attendance_index' %}">Attendance</a>
+{% endif %}
     {% if user.is_authenticated %}
   <span class="navbar-text text-white me-3">{{ user.get_username }}</span>
   <form method="post" action="{% url 'logout' %}" class="d-inline">
