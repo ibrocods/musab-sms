@@ -94,7 +94,7 @@ class SchoolClass(models.Model):
         limit_choices_to={'groups__name': 'Class teacher'},
     )
     is_active = models.BooleanField(default=True, help_text='Untick when a class is no longer running')
-
+    is_demo = models.BooleanField(default=False, editable=False)
     class Meta:
         ordering = ['name']
         verbose_name = 'class'
@@ -102,6 +102,8 @@ class SchoolClass(models.Model):
 
     def __str__(self):
         return self.name
+
+    
 class Student(models.Model):
     GENDER_CHOICES = [('M', 'Male'), ('F', 'Female')]
 
@@ -123,6 +125,7 @@ class Student(models.Model):
     is_archived = models.BooleanField(default=False)
     archived_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_demo = models.BooleanField(default=False, editable=False)
 
     class Meta:
         ordering = ['last_name', 'first_name']
@@ -214,6 +217,7 @@ class Term(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     is_current = models.BooleanField(default=False, help_text='Only one term can be current')
+    is_demo = models.BooleanField(default=False, editable=False)
 
     class Meta:
         ordering = ['-session', 'term_number']
@@ -240,7 +244,7 @@ class Subject(models.Model):
     name = models.CharField(max_length=100, unique=True, help_text='For example Mathematics')
     code = models.CharField(max_length=20, blank=True, help_text='Short code, for example MTH')
     is_active = models.BooleanField(default=True)
-
+    is_demo = models.BooleanField(default=False, editable=False)
     class Meta:
         ordering = ['name']
 
