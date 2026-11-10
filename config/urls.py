@@ -19,7 +19,7 @@ from django.contrib.admin import views
 from core import views, score_views, attendance_views
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from core import student_views
+from core import student_views, report_views
 urlpatterns = [
     path('admin/', admin.site.urls),
      path('', views.home, name='home'),
@@ -34,4 +34,6 @@ urlpatterns = [
     path('scores/<int:class_subject_pk>/term/<int:term_pk>/lock/', score_views.result_lock, name='result_lock'),
     path('attendance/', attendance_views.attendance_index, name='attendance_index'),
 path('attendance/<int:class_pk>/', attendance_views.attendance_register, name='attendance_register'),
+path('reports/attendance/', report_views.attendance_report, name='attendance_report'),
+path('reports/attendance/csv/', report_views.attendance_report_csv, name='attendance_report_csv'),
 ]
