@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Attendance report{% endblock %}
+{% block content %}
+<h1 class="h4 mb-3">Attendance report</h1>
+
+<form method="get" class="row g-2 align-items-end mb-3">
+  <div class="col-md-4">
+    <label class="form-label small mb-1" for="term">Term</label>
+    <select id="term" name="term" class="form-select">
+      {% for t in terms %}
+        <option value="{{ t.pk }}" {% if term and t.pk == term.pk %}selected{% endif %}>{{ t }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-4">
+    <label class="form-label small mb-1" for="class">Class</label>
+    <select id="class" name="class" class="form-select">
+      <option value="">Choose a class</option>
+      {% for c in classes %}
+        <option value="{{ c.pk }}" {% if school_class and c.pk == school_class.pk %}selected{% endif %}>{{ c.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-auto">
+    <button type="submit" class="btn btn-outline-secondary">Show</button>
+  </div>
+  {% if term and school_class %}
+  <div class="col-auto">
+    <a class="btn btn-school" href="{% url 'attendance_report_csv' %}?term={{ term.pk }}&class={{ school_class.pk }}">Download CSV</a>
+  </div>
+  {% endif %}
+</form>
+
+{% if not term %}
+  <div class="alert alert-warning">No term is selected, and no current term is set.</div>
+{% elif not school_class %}
+  <div class="text-muted">Choose a class to see its report.</div>
+{% else %}
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table mb-0 align-middle">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th class="text-end">Days marked</th>
+            <th class="text-end">Present</th>
+            <th class="text-end">Absent</th>
+            <th class="text-end">Late</th>
+            <th class="text-end">Excused</th>
+            <th class="text-end">Attendance</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for row in rows %}
+          <tr>
+            <td>{{ row.student.student_id }}</td>
+            <td>{{ row.student.last_name }} {{ row.student.first_name }}</td>
+            <td class="text-end">{{ row.marked }}</td>
+            <td class="text-end">{{ row.present }}</td>
+            <td class="text-end">{{ row.absent }}</td>
+            <td class="text-end">{{ row.late }}</td>
+            <td class="text-end">{{ row.excused }}</td>
+            <td class="text-end">{% if row.percentage is not None %}{{ row.percentage }}%{% else %}-{% endif %}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="8" class="text-muted">No students in this class.</td></tr>
+        {% endfor %}
+        </tbody>
+        {% if average is not None %}
+        <tfoot>
+          <tr>
+            <th colspan="7">Class average</th>
+            <th class="text-end">{{ average }}%</th>
+          </tr>
+        </tfoot>
+        {% endif %}
+      </table>
+    </div>
+  </div>
+  <p class="small text-muted mt-2">
+    Attendance = (present + late) ÷ (days marked − excused). Excused days are not counted against the student.
+  </p>
+{% endif %}
+{% endblock %}
