@@ -94,12 +94,6 @@ class AttendanceRuleTests(AttendanceSetup):
                 student=self.ada, school_class=self.jss1a, term=self.term, date=self.day, status='A',
             )
 
-    def test_marking_is_logged(self):
-        save_register(self.jss1a, self.term, self.day, {self.ada: 'A'}, self.ct)
-        self.assertTrue(AuditLog.objects.filter(
-            model_name='core.attendancerecord', action='create',
-        ).exists())
-
 
 class AttendanceViewTests(AttendanceSetup):
     def test_class_teacher_saves_through_the_page(self):

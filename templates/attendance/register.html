@@ -4,6 +4,10 @@
 <h1 class="h4 mb-1">Register: {{ school_class.name }}</h1>
 <p class="text-muted mb-3">{{ day|date:"l, j F Y" }}{% if term %}, {{ term }}{% endif %}</p>
 
+{% if non_school_reason %}
+  <div class="alert alert-warning">{{ non_school_reason }}. Marks can't be saved for this date.</div>
+{% endif %}
+
 <form method="get" class="row g-2 align-items-end mb-3">
   <div class="col-auto">
     <label class="form-label small mb-1" for="date">Date</label>
@@ -24,7 +28,7 @@
     <div class="table-responsive">
       <table class="table mb-0 align-middle">
         <thead>
-          <tr><th>ID</th><th>Name</th><th style="width: 200px;">Status</th></tr>
+          <tr><th>ID</th><th>Name</th><th style="width: 180px;">Status</th><th>Note</th></tr>
         </thead>
         <tbody>
         {% for row in rows %}
@@ -39,16 +43,21 @@
                 {% endfor %}
               </select>
             </td>
+            <td>
+              <input type="text" maxlength="200" name="note_{{ row.student.pk }}" value="{{ row.note }}"
+                     class="form-control form-control-sm" placeholder="Required if excused"
+                     {% if not allowed %}disabled{% endif %}>
+            </td>
           </tr>
         {% empty %}
-          <tr><td colspan="3" class="text-muted">No students in this class.</td></tr>
+          <tr><td colspan="4" class="text-muted">No students in this class.</td></tr>
         {% endfor %}
         </tbody>
       </table>
     </div>
   </div>
 
-  {% if allowed and rows %}
+  {% if allowed and rows and not non_school_reason %}
     <button type="submit" class="btn btn-school mt-3">Save register</button>
   {% endif %}
   <a href="{% url 'attendance_index' %}" class="ms-2">Back</a>

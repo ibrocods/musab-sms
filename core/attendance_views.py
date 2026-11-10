@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 
-from .attendance import can_mark, save_register
+from .attendance import can_mark, non_school_reason, save_register
 from .models import AttendanceRecord
 from .permissions import require_capability
 from .scope import visible_classes, visible_students
@@ -47,7 +47,7 @@ def attendance_index(request):
 @require_capability('view_attendance')
 @require_http_methods(['GET', 'POST'])
 def attendance_register(request, class_pk):
-    # Classes outside the user's scope return 404, so they don't even learn the class exists
+    # Classes outside the user's scope return 404
     school_class = get_object_or_404(visible_classes(request.user), pk=class_pk)
     term = current_term()
     day = _parse_day(request.GET.get('date'))
@@ -61,32 +61,33 @@ def attendance_register(request, class_pk):
             messages.error(request, 'No current term is set. Ask the administrator to mark one as current.')
             return redirect(request.get_full_path())
 
-        entries = {}
+        entries, notes = {}, {}
         for student in _students(request.user, school_class):
             code = request.POST.get(f'status_{student.pk}', '')
-            if code == '':
-                entries[student] = None
-            elif code in VALID_CODES:
-                entries[student] = code
-            else:
+            if code and code not in VALID_CODES:
                 return HttpResponseBadRequest('Unknown attendance code.')
+            entries[student] = code or None
+            notes[student] = request.POST.get(f'note_{student.pk}', '').strip()[:200]
 
         try:
-            save_register(school_class, term, day, entries, request.user)
+            save_register(school_class, term, day, entries, request.user, notes=notes)
         except ValidationError as error:
             messages.error(request, ' '.join(error.messages))
         else:
             messages.success(request, 'Attendance saved.')
         return redirect(f'{request.path}?date={day.isoformat()}')
 
-    existing = dict(
+    existing = {
+        student_pk: (status, note)
+        for student_pk, status, note in
         AttendanceRecord.objects.filter(school_class=school_class, date=day)
-        .values_list('student_id', 'status')
-    )
-    rows = [
-        {'student': student, 'status': existing.get(student.pk, '')}
-        for student in _students(request.user, school_class)
-    ]
+        .values_list('student', 'status', 'note')
+    }
+    rows = []
+    for student in _students(request.user, school_class):
+        status, note = existing.get(student.pk, ('', ''))
+        rows.append({'student': student, 'status': status, 'note': note})
+
     return render(request, 'attendance/register.html', {
         'school_class': school_class,
         'term': term,
@@ -94,4 +95,5 @@ def attendance_register(request, class_pk):
         'rows': rows,
         'allowed': allowed,
         'status_choices': AttendanceRecord.STATUS_CHOICES,
+        'non_school_reason': non_school_reason(day),
     })

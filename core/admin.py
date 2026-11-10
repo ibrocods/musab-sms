@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils import timezone
 from .models import (
     AuditLog, GradeBand, SchoolClass, SchoolProfile, Student, Subject, ClassSubject,
-    Assessment, Term, TemporaryGrant, Score, ResultLock, AttendanceRecord
+    Assessment, Term, TemporaryGrant, Score, ResultLock, NonSchoolDay, AttendanceRecord
 )
 
 class SuperuserOnlyAdmin(admin.ModelAdmin):
@@ -159,3 +159,9 @@ class AttendanceRecordAdmin(SuperuserOnlyAdmin):
     list_display = ('date', 'student', 'school_class', 'status', 'marked_by')
     list_filter = ('date', 'school_class', 'status')
     search_fields = ('student__student_id', 'student__last_name')
+
+
+@admin.register(NonSchoolDay)
+class NonSchoolDayAdmin(SuperuserOnlyAdmin):
+    list_display = ('date', 'description')
+    search_fields = ('description',)

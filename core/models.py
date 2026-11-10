@@ -25,7 +25,10 @@ class SchoolProfile(models.Model):
         max_length=100, default='{year}/{seq:04d}',
         help_text='Example: {year}/{seq:04d} gives 2026/0001',
     )
-
+    school_days = models.CharField(
+        max_length=13, default='0,1,2,3,4',
+        help_text='Days the school is open: 0 = Monday ... 6 = Sunday. Default is Monday to Friday.',
+    )
     class Meta:
         verbose_name = 'School profile'
         # Django stores each capability as a permission. They're attached to this
@@ -44,6 +47,8 @@ class SchoolProfile(models.Model):
     def get(cls):
         profile, _ = cls.objects.get_or_create(pk=1)
         return profile
+    def school_day_numbers(self):
+        return {int(d) for d in self.school_days.split(',') if d.strip().isdigit()}
 
 
 class TemporaryGrant(models.Model):
@@ -372,3 +377,13 @@ class AttendanceRecord(models.Model):
 
     def __str__(self):
         return f'{self.student} {self.date:%Y-%m-%d}: {self.get_status_display()}'
+
+class NonSchoolDay(models.Model):
+    date = models.DateField(unique=True)
+    description = models.CharField(max_length=100, help_text='For example Independence Day')
+
+    class Meta:
+        ordering = ['date']
+
+    def __str__(self):
+        return f'{self.date:%Y-%m-%d} {self.description}'
