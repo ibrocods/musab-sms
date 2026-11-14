@@ -17,4 +17,6 @@ CAPABILITIES = {
     'reverse_payments': 'Reverse payments',
     'grant_discounts': 'Grant fee discounts',
     'manage_fees': 'Set up fee items',
+    'write_class_comment': 'Write class teacher comments',
+    'write_head_remark': 'Write head teacher remarks',
 }

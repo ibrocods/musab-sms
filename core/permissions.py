@@ -11,6 +11,7 @@ ROLE_CAPABILITIES = {
         'view_students', 'view_attendance', 'view_grades',
         'lock_results', 'approve_report_cards', 'view_fees',
         'reverse_payments', 'grant_discounts',
+        'write_head_remark',
     ],
     'Bursar': [
         'view_students', 'view_fees', 'manage_fees', 'collect_fees',
@@ -19,6 +20,7 @@ ROLE_CAPABILITIES = {
     'Class teacher': [
         'view_students', 'view_attendance', 'mark_attendance',
         'view_grades', 'enter_grades', 'comment_report_cards',
+        'write_class_comment', 
     ],
     'Subject teacher': ['view_students', 'view_grades', 'enter_grades'],
     'Exams officer': [

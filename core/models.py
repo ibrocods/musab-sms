@@ -33,6 +33,10 @@ class SchoolProfile(models.Model):
         max_length=13, default='0,1,2,3,4',
         help_text='Days the school is open: 0 = Monday ... 6 = Sunday. Default is Monday to Friday.',
     )
+    comment_max_length = models.PositiveIntegerField(
+        default=300,
+        help_text='Longest allowed length for teacher and head teacher comments, in characters',
+    )
     class Meta:
         verbose_name = 'School profile'
         # Django stores each capability as a permission. They're attached to this
