@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
-
+import django.utils.timezone as timezone
 from core.models import SchoolClass, Student, Term
 
 
@@ -97,3 +97,39 @@ class Payment(models.Model):
 
     def delete(self, *args, **kwargs):
         raise PermissionError('Payments cannot be deleted. Record a reversal instead.')
+
+
+class Discount(models.Model):
+    KIND_CHOICES = [('percent', 'Percentage of charges'), ('fixed', 'Fixed amount')]
+
+    student = models.ForeignKey(Student, on_delete=models.PROTECT, related_name='discounts')
+    term = models.ForeignKey(Term, on_delete=models.PROTECT, related_name='discounts')
+    kind = models.CharField(max_length=10, choices=KIND_CHOICES)
+    value = models.DecimalField(
+        max_digits=12, decimal_places=2,
+        validators=[MinValueValidator(0.01)],
+        help_text='A percentage from 0 to 100, or a naira amount',
+    )
+    reason = models.CharField(max_length=200, help_text='For example Scholarship or Staff child')
+    approved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, related_name='+', editable=False,
+    )
+    starts_on = models.DateField(default=timezone.localdate)
+    ends_on = models.DateField(null=True, blank=True, help_text='Leave blank for the whole term')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        amount = f'{self.value}%' if self.kind == 'percent' else f'{self.value}'
+        return f'{self.student} {self.term}: {amount} ({self.reason})'
+
+    def clean(self):
+        if self.kind == 'percent' and not (0 < self.value <= 100):
+            raise ValidationError({'value': 'A percentage must be more than 0 and at most 100.'})
+        if self.ends_on and self.starts_on and self.ends_on < self.starts_on:
+            raise ValidationError({'ends_on': 'The end date cannot be before the start date.'})
+
+    def delete(self, *args, **kwargs):
+        raise PermissionError('Discounts cannot be deleted. Set an end date instead.')

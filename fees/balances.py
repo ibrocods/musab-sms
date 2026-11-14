@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from django.db.models import Q, Sum
 
+from .discounts import active_discounts
 from .models import FeeItem, Payment
 
 ZERO = Decimal('0.00')
@@ -44,28 +45,48 @@ def _net_paid_by_student(term):
     }
 
 
-def _discounts_by_student(term):
-    """Per-student reductions for this term. Step 4 replaces this with real data."""
-    return {}
+def _discounts_for(term, students, charged_by_student):
+    """Discount amount per student.
+
+    Percentage discounts apply to the student's total charges. Fixed discounts
+    are subtracted. The total discount can never exceed the charges.
+    """
+    result = {}
+    for student in students:
+        charged = charged_by_student.get(student.pk, ZERO)
+        total = ZERO
+        for discount in active_discounts(student, term):
+            if discount.kind == 'percent':
+                total += (charged * discount.value / Decimal('100')).quantize(Decimal('0.01'))
+            else:
+                total += discount.value
+        result[student.pk] = min(total, charged)
+    return result
 
 
 def statement(term, students):
-    """One row per student: charged, paid, discount and balance.
+    """One row per student: charged, discount, paid and balance.
 
     Nothing is stored. Each figure is worked out from the fee items, payments,
     reversals and discounts every time it's asked for.
     """
+    students = list(students)
     all_classes = _all_class_total(term)
     per_class = _per_class_totals(term)
     net_paid = _net_paid_by_student(term)
-    discounts = _discounts_by_student(term)
+
+    charged_by_student = {
+        student.pk: all_classes + per_class.get(student.school_class_id, ZERO)
+        for student in students
+    }
+    discounts = _discounts_for(term, students, charged_by_student)
 
     rows = []
     for student in students:
-        charged = all_classes + per_class.get(student.school_class_id, ZERO)
-        paid = net_paid.get(student.pk, ZERO)
+        charged = charged_by_student[student.pk]
         discount = discounts.get(student.pk, ZERO)
-        balance = charged - paid - discount
+        paid = net_paid.get(student.pk, ZERO)
+        balance = charged - discount - paid
 
         if balance > 0:
             status = 'owing'

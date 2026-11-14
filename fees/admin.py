@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import FeeItem, Payment
+from .models import FeeItem, Payment, Discount
 
 
 @admin.register(FeeItem)
@@ -43,6 +43,31 @@ class PaymentAdmin(admin.ModelAdmin):
         return False
 
     def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(Discount)
+class DiscountAdmin(admin.ModelAdmin):
+    # Discounts are granted through the service functions so the approver and the check are recorded
+    list_display = ('student', 'term', 'kind', 'value', 'reason', 'starts_on', 'ends_on', 'approved_by')
+    list_filter = ('term', 'kind')
+    search_fields = ('student__student_id', 'student__last_name', 'reason')
+    readonly_fields = ('student', 'term', 'kind', 'value', 'reason', 'approved_by', 'starts_on', 'created_at')
+
+    def has_module_permission(self, request):
+        return request.user.is_superuser
+
+    def has_view_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        # Only the end date can change, through end_discount
         return False
 
     def has_delete_permission(self, request, obj=None):

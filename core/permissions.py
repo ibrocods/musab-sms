@@ -9,9 +9,13 @@ from django.utils import timezone
 ROLE_CAPABILITIES = {
     'Head teacher': [
         'view_students', 'view_attendance', 'view_grades',
-        'lock_results', 'approve_report_cards', 'view_fees', 'reverse_payments',
+        'lock_results', 'approve_report_cards', 'view_fees',
+        'reverse_payments', 'grant_discounts',
     ],
-    'Bursar': ['view_students', 'view_fees', 'collect_fees', 'reverse_payments'],
+    'Bursar': [
+        'view_students', 'view_fees', 'collect_fees',
+        'reverse_payments', 'grant_discounts',
+    ],
     'Class teacher': [
         'view_students', 'view_attendance', 'mark_attendance',
         'view_grades', 'enter_grades', 'comment_report_cards',

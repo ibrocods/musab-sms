@@ -8,6 +8,9 @@ class Command(BaseCommand):
     help = "Creates the staff roles and attaches their capabilities. Safe to run again."
 
     def handle(self, *args, **options):
+        # Tests call this with verbosity=0, so only print when asked
+        chatty = options.get('verbosity', 1) > 0
+
         for role, capabilities in ROLE_CAPABILITIES.items():
             group, _ = Group.objects.get_or_create(name=role)
             perms = Permission.objects.filter(
@@ -17,6 +20,9 @@ class Command(BaseCommand):
 
             found = set(perms.values_list('codename', flat=True))
             missing = set(capabilities) - found
+
+            # Warnings always show, because they mean something is wrong
             if missing:
                 self.stderr.write(f'{role}: missing {sorted(missing)}. Run migrate first.')
-            self.stdout.write(f'{role}: {len(found)} capabilities')
+            if chatty:
+                self.stdout.write(f'{role}: {len(found)} capabilities')

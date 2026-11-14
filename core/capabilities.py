@@ -15,4 +15,5 @@ CAPABILITIES = {
     'collect_fees': 'Record fee payments',
     'manage_users': 'Manage staff accounts',
     'reverse_payments': 'Reverse payments',
+    'grant_discounts': 'Grant fee discounts',
 }
