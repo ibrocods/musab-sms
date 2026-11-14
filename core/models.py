@@ -25,6 +25,10 @@ class SchoolProfile(models.Model):
         max_length=100, default='{year}/{seq:04d}',
         help_text='Example: {year}/{seq:04d} gives 2026/0001',
     )
+    receipt_pattern = models.CharField(
+        max_length=100, default='RCPT-{year}-{seq:04d}',
+        help_text='Receipt format. {seq} is required. Example: RCPT-{year}-{seq:04d}',
+    )
     school_days = models.CharField(
         max_length=13, default='0,1,2,3,4',
         help_text='Days the school is open: 0 = Monday ... 6 = Sunday. Default is Monday to Friday.',
@@ -47,6 +51,15 @@ class SchoolProfile(models.Model):
     def get(cls):
         profile, _ = cls.objects.get_or_create(pk=1)
         return profile
+    def clean(self):
+        if '{seq' not in self.receipt_pattern:
+            raise ValidationError({'receipt_pattern': 'The receipt format must include {seq}.'})
+        try:
+            self.receipt_pattern.format(year=2026, seq=1)
+        except (KeyError, ValueError, IndexError):
+            raise ValidationError({
+                'receipt_pattern': 'Use only the placeholders {year} and {seq}, for example RCPT-{year}-{seq:04d}.',
+            })
     def school_day_numbers(self):
         return {int(d) for d in self.school_days.split(',') if d.strip().isdigit()}
 

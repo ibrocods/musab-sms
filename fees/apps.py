@@ -7,5 +7,6 @@ class FeesConfig(AppConfig):
 
     def ready(self):
         from core.signals import track
-        from .models import FeeItem
+        from .models import FeeItem, Payment
         track(FeeItem)
+        track(Payment)
