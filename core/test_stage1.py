@@ -55,9 +55,8 @@ class StudentIdTests(Stage1Setup):
     def test_pattern_without_sequence_is_refused(self):
         profile = SchoolProfile.get()
         profile.student_id_pattern = '{year}'
-        profile.save()
-        with self.assertRaises(ValueError):
-            Student.objects.create(first_name='New', last_name='One')
+        with self.assertRaises(ValidationError):
+            profile.save()
 
 
 class StudentVisibilityTests(Stage1Setup):

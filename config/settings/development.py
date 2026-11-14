@@ -6,3 +6,8 @@ SECRET_KEY = 'development-only-key-do-not-use-in-production'
 
 # Add your laptop's LAN IP here when testing from a phone
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.18.3']
+import sys
+
+# Fast password hashing for test runs only. Real logins keep the secure default.
+if 'test' in sys.argv:
+    PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
