@@ -7,5 +7,6 @@ class ReportCardsConfig(AppConfig):
 
     def ready(self):
         from core.signals import track
-        from .models import ReportComment
+        from .models import ReportCard, ReportComment
         track(ReportComment)
+        track(ReportCard)
