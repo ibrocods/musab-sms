@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block title %}Report card: {{ card.student.last_name }}{% endblock %}
+{% block content %}
+<style>
+  @media print {
+    .navbar, .no-print, .alert { display: none !important; }
+    body { background: #fff !important; }
+    .card { border: none !important; box-shadow: none !important; }
+    .draft-watermark { color: rgba(0,0,0,0.12) !important; }
+  }
+  .draft-watermark {
+    font-size: 4rem; font-weight: 700; color: rgba(220,53,69,0.25);
+    text-align: center; transform: rotate(-20deg); user-select: none;
+  }
+</style>
+
+<div class="card shadow-sm p-4">
+  {% if not card.is_frozen %}
+    <div class="no-print alert alert-warning">This is a draft. Approve it before printing a final copy.</div>
+    <div class="draft-watermark">DRAFT</div>
+  {% endif %}
+
+  <div class="text-center mb-3">
+    <h1 class="h4 mb-0">{{ school.name }}</h1>
+    {% if school.motto %}<div class="fst-italic small">{{ school.motto }}</div>{% endif %}
+    <h2 class="h6 mt-2">Terminal report: {{ snap.term }}</h2>
+  </div>
+
+  <div class="row mb-3 small">
+    <div class="col-md-6"><strong>Name:</strong> {{ snap.student_name }}</div>
+    <div class="col-md-3"><strong>Student ID:</strong> {{ snap.student_id }}</div>
+    <div class="col-md-3"><strong>Class:</strong> {{ snap.class }}</div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-sm align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Subject</th><th class="text-end">Total</th><th class="text-center">Grade</th>
+          <th>Remark</th><th class="text-center">Position</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for s in snap.subjects %}
+        <tr>
+          <td>{{ s.subject }}</td>
+          <td class="text-end">{{ s.total }}</td>
+          <td class="text-center">{{ s.grade }}</td>
+          <td>{{ s.remark }}</td>
+          <td class="text-center">{{ s.position|default:"-" }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="5" class="text-muted">No subjects recorded.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="row mb-3 small">
+    <div class="col-md-4"><strong>Average:</strong> {{ snap.average|default:"-" }}</div>
+    <div class="col-md-4"><strong>Position in class:</strong> {{ snap.position|default:"-" }}</div>
+    <div class="col-md-4">
+      <strong>Attendance:</strong>
+      {% if snap.attendance.percentage %}{{ snap.attendance.percentage }}%
+      ({{ snap.attendance.present }} present of {{ snap.attendance.marked }} days){% else %}-{% endif %}
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <div class="fw-semibold small">Class teacher's comment</div>
+    <div class="border rounded p-2 small">{{ snap.class_teacher_comment|default:"-" }}</div>
+  </div>
+  <div class="mb-4">
+    <div class="fw-semibold small">Head teacher's remark</div>
+    <div class="border rounded p-2 small">{{ snap.head_teacher_remark|default:"-" }}</div>
+  </div>
+
+  <div class="row small text-muted">
+    <div class="col-md-6">Approved: {% if card.approved_at %}{{ card.approved_at|date:"d M Y" }}{% else %}not yet{% endif %}</div>
+    <div class="col-md-6 text-md-end">Head teacher's signature: ____________________</div>
+  </div>
+
+    <div class="no-print mt-4">
+    {% if card.is_frozen %}
+      <button type="button" class="btn btn-school" onclick="window.print()">Print</button>
+    {% endif %}
+  </div>
+  </div>
+</div>
+{% endblock %}

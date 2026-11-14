@@ -58,6 +58,12 @@
                  href="{% url 'fees:index' %}">Fees</a>
             </li>
           {% endif %}
+                    {% if caps.view_grades %}
+            <li class="nav-item">
+              <a class="nav-link {% if request.resolver_match.namespace == 'report_cards' %}active{% endif %}"
+                 href="{% url 'report_cards:index' %}">Report cards</a>
+            </li>
+          {% endif %}
         </ul>
 
         <div class="d-flex align-items-center">

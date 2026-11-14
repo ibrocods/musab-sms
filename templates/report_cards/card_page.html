@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Report card: {{ student.last_name }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3 no-print">
+  <div>
+    <h1 class="h5 mb-0">{{ student.last_name }} {{ student.first_name }}</h1>
+    <div class="text-muted small">{{ term }} &middot; {% if card.is_frozen %}Approved{% else %}Draft{% endif %}</div>
+  </div>
+  <a href="{% url 'report_cards:index' %}?term={{ term.pk }}&class={{ student.school_class.pk }}" class="btn btn-sm btn-outline-secondary">Back to class</a>
+</div>
+
+{% if problems %}
+  <div class="alert alert-warning no-print">
+    <div class="fw-semibold mb-1">Not ready to approve:</div>
+    <ul class="mb-0">{% for p in problems %}<li>{{ p }}</li>{% endfor %}</ul>
+  </div>
+{% endif %}
+
+{% if can_approve %}
+  <form method="post" action="{% url 'report_cards:approve' student.pk %}?term={{ term.pk }}" class="no-print mb-3">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-school" {% if problems %}disabled{% endif %}>Approve and freeze</button>
+  </form>
+{% endif %}
+
+{% if card.is_frozen and request.user.is_authenticated %}
+  <div class="no-print mb-3">
+    <details>
+      <summary class="btn btn-sm btn-outline-danger">Reopen for correction</summary>
+      <form method="post" action="{% url 'report_cards:reopen' student.pk %}?term={{ term.pk }}" class="mt-2 d-flex gap-2">
+        {% csrf_token %}
+        <input type="text" name="reason" class="form-control form-control-sm" placeholder="Reason" required>
+        <button type="submit" class="btn btn-sm btn-outline-danger">Reopen</button>
+      </form>
+    </details>
+  </div>
+{% endif %}
+
+{{ card_html|safe }}
+
+{% if can_comment or can_remark %}
+  <div class="card shadow-sm mt-4 no-print">
+    <div class="card-body">
+      <h2 class="h6 mb-3">Comments</h2>
+      {% if can_comment %}
+        <form method="post" action="{% url 'report_cards:comment' student.pk %}?term={{ term.pk }}" class="mb-3">
+          {% csrf_token %}
+          <input type="hidden" name="kind" value="class_teacher">
+          <label class="form-label small" for="ct">Class teacher's comment (max {{ comment_limit }} characters)</label>
+          <textarea id="ct" name="text" maxlength="{{ comment_limit }}" rows="2" class="form-control mb-2">{{ class_comment }}</textarea>
+          <button type="submit" class="btn btn-sm btn-outline-secondary">Save class comment</button>
+        </form>
+      {% endif %}
+      {% if can_remark %}
+        <form method="post" action="{% url 'report_cards:comment' student.pk %}?term={{ term.pk }}">
+          {% csrf_token %}
+          <input type="hidden" name="kind" value="head_teacher">
+          <label class="form-label small" for="hr">Head teacher's remark (max {{ comment_limit }} characters)</label>
+          <textarea id="hr" name="text" maxlength="{{ comment_limit }}" rows="2" class="form-control mb-2">{{ head_remark }}</textarea>
+          <button type="submit" class="btn btn-sm btn-outline-secondary">Save remark</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

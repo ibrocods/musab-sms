@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Report cards{% endblock %}
+{% block content %}
+<h1 class="h4 mb-3">Report cards{% if term %}: {{ term }}{% endif %}</h1>
+
+<form method="get" class="row g-2 align-items-end mb-3">
+  <div class="col-md-4">
+    <label class="form-label small mb-1" for="term">Term</label>
+    <select id="term" name="term" class="form-select">
+      {% for t in terms %}
+        <option value="{{ t.pk }}" {% if term and t.pk == term.pk %}selected{% endif %}>{{ t }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-4">
+    <label class="form-label small mb-1" for="class">Class</label>
+    <select id="class" name="class" class="form-select">
+      <option value="">Choose a class</option>
+      {% for c in classes %}
+        <option value="{{ c.pk }}" {% if school_class and c.pk == school_class.pk %}selected{% endif %}>{{ c.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-auto">
+    <button type="submit" class="btn btn-outline-secondary">Show</button>
+  </div>
+</form>
+
+{% if not term %}
+  <div class="alert alert-warning">No term is selected, and no current term is set.</div>
+{% elif not school_class %}
+  <div class="text-muted">Choose a class to see its report cards.</div>
+{% else %}
+  <div class="card shadow-sm">
+    <ul class="list-group list-group-flush">
+      {% for row in rows %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>
+            {{ row.student.last_name }} {{ row.student.first_name }}
+            <span class="text-muted small">{{ row.student.student_id }}</span>
+          </span>
+          <span>
+            {% if row.card and row.card.is_frozen %}
+              <span class="badge bg-success me-2">Approved</span>
+            {% else %}
+              <span class="badge bg-secondary me-2">Draft</span>
+            {% endif %}
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'report_cards:card' row.student.pk %}?term={{ term.pk }}">Open</a>
+          </span>
+        </li>
+      {% empty %}
+        <li class="list-group-item text-muted">No students in this class.</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+{% endblock %}

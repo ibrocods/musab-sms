@@ -161,14 +161,13 @@ class SnapshotTests(ApprovalSetup):
         card.refresh_from_db()
         self.assertEqual(card.snapshot, before)
 
-    def test_comment_written_after_approval_does_not_appear(self):
+    def test_comment_written_after_approval_is_refused(self):
         self.ready_student()
         card = approve_card(self.ada, self.term, self.head)
-        self.assertEqual(card.snapshot['class_teacher_comment'], '')
-        save_class_comment(self.ada, self.term, 'Too late.', self.ct)
+        with self.assertRaises(ValidationError):
+            save_class_comment(self.ada, self.term, 'Too late.', self.ct)
         card.refresh_from_db()
         self.assertEqual(card.snapshot['class_teacher_comment'], '')
-
     def test_snapshot_is_built_from_current_figures_only(self):
         self.ready_student()
         snapshot = build_snapshot(self.ada, self.term)
