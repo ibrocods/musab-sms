@@ -25,3 +25,7 @@
 - **A discount can't exceed the charges.**
 - **Only the head teacher and bursar can grant or end discounts.**
 - **Fee setup belongs to the bursar.** The head teacher can view fees, reverse payments and grant discounts, but can't change fee items.
+
+- **Demo tooling is the only place that crosses apps.** core/demo.py imports fees lazily, inside functions, so core still loads without fees. Nothing else in core imports fees.
+- **Demo wipe removes money with queryset deletes,** in order: reversals, payments, discounts, fee items. These match only demo students and demo terms.
+- **Stage 3 is complete:** fee items, payments with unique receipts and reversals, calculated balances, discounts, bursar pages, and end-to-end tests.

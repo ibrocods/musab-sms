@@ -45,6 +45,8 @@ class SchoolProfile(models.Model):
     def save(self, *args, **kwargs):
         # Only one profile is allowed per installation
         self.pk = 1
+        if '{seq' not in self.student_id_pattern or '{seq' not in self.receipt_pattern:
+            raise ValidationError('Student ID and receipt formats must both include {seq}.')
         super().save(*args, **kwargs)
 
     @classmethod
@@ -52,14 +54,26 @@ class SchoolProfile(models.Model):
         profile, _ = cls.objects.get_or_create(pk=1)
         return profile
     def clean(self):
+        errors = {}
+
+        if '{seq' not in self.student_id_pattern:
+            errors['student_id_pattern'] = 'The student ID format must include {seq}.'
+        else:
+            try:
+                self.student_id_pattern.format(year=2026, seq=1)
+            except (KeyError, ValueError, IndexError):
+                errors['student_id_pattern'] = 'Use only {year} and {seq}, for example {year}/{seq:04d}.'
+
         if '{seq' not in self.receipt_pattern:
-            raise ValidationError({'receipt_pattern': 'The receipt format must include {seq}.'})
-        try:
-            self.receipt_pattern.format(year=2026, seq=1)
-        except (KeyError, ValueError, IndexError):
-            raise ValidationError({
-                'receipt_pattern': 'Use only the placeholders {year} and {seq}, for example RCPT-{year}-{seq:04d}.',
-            })
+            errors['receipt_pattern'] = 'The receipt format must include {seq}.'
+        else:
+            try:
+                self.receipt_pattern.format(year=2026, seq=1)
+            except (KeyError, ValueError, IndexError):
+                errors['receipt_pattern'] = 'Use only {year} and {seq}, for example RCPT-{year}-{seq:04d}.'
+
+        if errors:
+            raise ValidationError(errors)
     def school_day_numbers(self):
         return {int(d) for d in self.school_days.split(',') if d.strip().isdigit()}
 

@@ -20,6 +20,7 @@ DEMO_DAYS_BACK = 30
 # (username, role, class the user is class teacher of)
 DEMO_USERS = [
     ('demo_head', 'Head teacher', None),
+    ('demo_bursar', 'Bursar', None),
     ('demo_records', 'Records officer', None),
     ('demo_class1', 'Class teacher', 'DEMO JSS1A'),
     ('demo_class2', 'Class teacher', 'DEMO JSS2B'),
@@ -50,6 +51,11 @@ def _restore_previous_term():
 def wipe_demo():
     """Delete only records flagged as demo. Real records are never matched."""
     _guard()
+
+    # Fee demo lives in the fees app. Imported here so core loads without it.
+    from fees.demo import wipe_fee_demo
+    wipe_fee_demo()
+
     Student.objects.filter(is_demo=True).delete()
     SchoolClass.objects.filter(is_demo=True).delete()
     Subject.objects.filter(is_demo=True).delete()
@@ -139,5 +145,10 @@ def seed_demo(students_per_class=20):
                 entries[student] = code
                 notes[student] = 'Demo excuse' if code == 'E' else ''
             save_register(school_class, term, day, entries, users[teacher], notes=notes)
+
+    # Fees, payments and scholarships (lives in the fees app)
+    from fees.demo import seed_fee_demo
+    all_students = students[jss1] + students[jss2]
+    seed_fee_demo(term, users['demo_bursar'], users['demo_head'], [jss1, jss2], all_students)
 
     return term

@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AnonymousUser, Group, User
+from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.test import Client, TestCase
 from django.urls import reverse
@@ -147,3 +148,10 @@ class AuditLogTests(Stage1Setup):
             entry.save()
         with self.assertRaises(PermissionError):
             entry.delete()
+
+class PatternSafetyTests(TestCase):
+    def test_profile_refuses_a_pattern_without_sequence(self):
+        profile = SchoolProfile.get()
+        profile.student_id_pattern = '{year}'
+        with self.assertRaises(ValidationError):
+            profile.save()
