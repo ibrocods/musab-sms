@@ -5,7 +5,13 @@ from django.dispatch import receiver
 from .middleware import get_current_user
 from .models import AuditLog, ResultLock, SchoolClass, SchoolProfile, Score, Student, Term, TemporaryGrant
 
-TRACKED = (SchoolProfile, SchoolClass, Student, Term, Score, TemporaryGrant, ResultLock)
+TRACKED = [SchoolProfile, SchoolClass, Student, Term, Score, ResultLock, TemporaryGrant]
+
+
+def track(model):
+    """Let other apps add their models to the audit log."""
+    if model not in TRACKED:
+        TRACKED.append(model)
 
 
 def _clean(value):
