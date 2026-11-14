@@ -16,4 +16,5 @@ CAPABILITIES = {
     'manage_users': 'Manage staff accounts',
     'reverse_payments': 'Reverse payments',
     'grant_discounts': 'Grant fee discounts',
+    'manage_fees': 'Set up fee items',
 }

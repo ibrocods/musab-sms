@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.contrib.admin import views
 from core import views, score_views, attendance_views
-from django.urls import path
+from django.urls import include, path
 from django.contrib.auth import views as auth_views
 from core import student_views, report_views
 urlpatterns = [
@@ -36,4 +36,5 @@ urlpatterns = [
 path('attendance/<int:class_pk>/', attendance_views.attendance_register, name='attendance_register'),
 path('reports/attendance/', report_views.attendance_report, name='attendance_report'),
 path('reports/attendance/csv/', report_views.attendance_report_csv, name='attendance_report_csv'),
+path('fees/', include('fees.urls')),
 ]

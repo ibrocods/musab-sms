@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% block title %}Fees: {{ student.last_name }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h1 class="h4 mb-0">{{ student.last_name }} {{ student.first_name }}</h1>
+    <div class="text-muted small">
+      {{ student.student_id }} &middot; {{ student.school_class|default:"No class" }}
+      {% if student.is_archived %}&middot; <span class="badge bg-secondary">Archived</span>{% endif %}
+    </div>
+  </div>
+  <a href="{% url 'fees:index' %}{% if term %}?term={{ term.pk }}{% endif %}" class="btn btn-sm btn-outline-secondary">Back to fees</a>
+</div>
+
+<form method="get" class="row g-2 align-items-end mb-3">
+  <input type="hidden" name="term" value="">
+  <div class="col-md-4">
+    <select name="term" class="form-select">
+      {% for t in terms %}
+        <option value="{{ t.pk }}" {% if term and t.pk == term.pk %}selected{% endif %}>{{ t }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-auto">
+    <button type="submit" class="btn btn-outline-secondary">Show term</button>
+  </div>
+</form>
+
+{% if not term %}
+  <div class="alert alert-warning">No term is selected, and no current term is set.</div>
+{% else %}
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <div class="row text-center">
+        <div class="col"><div class="text-muted small">Charged</div><div class="h5">{{ row.charged }}</div></div>
+        <div class="col"><div class="text-muted small">Discount</div><div class="h5">{{ row.discount }}</div></div>
+        <div class="col"><div class="text-muted small">Paid</div><div class="h5">{{ row.paid }}</div></div>
+        <div class="col">
+          <div class="text-muted small">Balance</div>
+          <div class="h5">{{ row.balance }}
+            {% if row.status == 'owing' %}<span class="badge bg-danger">Owing</span>
+            {% elif row.status == 'credit' %}<span class="badge bg-info">Credit</span>
+            {% else %}<span class="badge bg-success">Clear</span>{% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if caps.collect_fees %}
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h2 class="h6 mb-3">Record a payment</h2>
+      <form method="post" action="{% url 'fees:payment_record' student.pk %}?term={{ term.pk }}" class="row g-2 align-items-end">
+        {% csrf_token %}
+        {% for field in payment_form %}
+          <div class="col-md-2">
+            <label class="form-label small mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+          </div>
+        {% endfor %}
+        <div class="col-md-auto">
+          <button type="submit" class="btn btn-school">Record payment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+
+  <h2 class="h6">Payments and reversals</h2>
+  <div class="card shadow-sm mb-4">
+    <div class="table-responsive">
+      <table class="table mb-0 align-middle">
+        <thead>
+          <tr><th>Receipt</th><th>Date</th><th>Kind</th><th>Method</th><th class="text-end">Amount</th><th>Note</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+        {% for item in payments %}
+          <tr>
+            <td>{{ item.p.receipt_number }}</td>
+            <td>{{ item.p.paid_on|date:"d M Y" }}</td>
+            <td>{{ item.p.get_kind_display }}</td>
+            <td>{{ item.p.get_method_display }}</td>
+            <td class="text-end">{{ item.p.amount }}</td>
+            <td class="small">{{ item.p.note }}</td>
+            <td>
+              {% if item.can_reverse and caps.reverse_payments %}
+                <form method="post" action="{% url 'fees:payment_reverse' item.p.pk %}" class="d-flex gap-1">
+                  {% csrf_token %}
+                  <input type="text" name="reason" class="form-control form-control-sm" placeholder="Reason" required>
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Reverse</button>
+                </form>
+              {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="7" class="text-muted">No payments this term.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h2 class="h6">Discounts</h2>
+  <div class="card shadow-sm mb-3">
+    <div class="table-responsive">
+      <table class="table mb-0 align-middle">
+        <thead>
+          <tr><th>Type</th><th class="text-end">Value</th><th>Reason</th><th>From</th><th>To</th><th>Approved by</th><th></th></tr>
+        </thead>
+        <tbody>
+        {% for item in discounts %}
+          <tr>
+            <td>{{ item.d.get_kind_display }}</td>
+            <td class="text-end">{% if item.d.kind == 'percent' %}{{ item.d.value }}%{% else %}{{ item.d.value }}{% endif %}</td>
+            <td>{{ item.d.reason }}</td>
+            <td>{{ item.d.starts_on|date:"d M Y" }}</td>
+            <td>{% if item.d.ends_on %}{{ item.d.ends_on|date:"d M Y" }}{% else %}end of term{% endif %}</td>
+            <td>{{ item.d.approved_by|default:"-" }}</td>
+            <td>
+              {% if item.is_open and caps.grant_discounts %}
+                <form method="post" action="{% url 'fees:discount_end' item.d.pk %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-secondary">End today</button>
+                </form>
+              {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="7" class="text-muted">No discounts this term.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% if caps.grant_discounts %}
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h2 class="h6 mb-3">Grant a discount</h2>
+      <form method="post" action="{% url 'fees:discount_grant' student.pk %}?term={{ term.pk }}" class="row g-2 align-items-end">
+        {% csrf_token %}
+        {% for field in discount_form %}
+          <div class="col-md-2">
+            <label class="form-label small mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+          </div>
+        {% endfor %}
+        <div class="col-md-auto">
+          <button type="submit" class="btn btn-school">Grant discount</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+
+{% endif %}
+{% endblock %}

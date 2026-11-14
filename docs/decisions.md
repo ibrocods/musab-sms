@@ -11,3 +11,17 @@
 
 - **Attendance percentage.** (Present + Late) divided by (days marked minus Excused). Late counts as attended. Excused days are removed from the calculation.
 - **Reports use the view_attendance capability.** Anyone who can view attendance can also download the report as CSV. If a school wants export restricted, add a separate capability later.
+
+- **Payments are never edited or deleted.** Corrections are reversals, which are rows with their own receipt numbers.
+- **Receipt numbers are never reused.** Reversals consume numbers too. The pattern is set in the school profile.
+- **Reversing a payment needs a reason** and the reverse_payments capability (bursar and head teacher by default).
+- **Balances are calculated, never stored.** Balance = charges minus payments (net of reversals) minus discounts.
+- **Charges follow the student's current class.** A mid-term transfer changes the charge. The school decides whether to pro-rate.
+- **Students with no class are charged only the all-class fees.**
+- **Archived students stay on the debtors list.** A student who leaves owing money is still owed.
+- **A negative balance is a credit,** not a debt, and is excluded from debtors.
+- **Discounts are recorded, never deleted.** Ending one sets an end date.
+- **Percentage discounts apply to total term charges,** not to each fee item.
+- **A discount can't exceed the charges.**
+- **Only the head teacher and bursar can grant or end discounts.**
+- **Fee setup belongs to the bursar.** The head teacher can view fees, reverse payments and grant discounts, but can't change fee items.

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Fee setup{% endblock %}
+{% block content %}
+<h1 class="h4 mb-3">Fee setup{% if term %}: {{ term }}{% endif %}</h1>
+
+<form method="get" class="row g-2 align-items-end mb-3">
+  <div class="col-md-4">
+    <select name="term" class="form-select">
+      {% for t in terms %}
+        <option value="{{ t.pk }}" {% if term and t.pk == term.pk %}selected{% endif %}>{{ t }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-auto">
+    <button type="submit" class="btn btn-outline-secondary">Show term</button>
+  </div>
+  {% if term %}
+  <div class="col-auto">
+    <a href="{% url 'fees:fee_create' %}?term={{ term.pk }}" class="btn btn-school">Add fee</a>
+  </div>
+  {% endif %}
+</form>
+
+{% if not term %}
+  <div class="alert alert-warning">No term is selected, and no current term is set.</div>
+{% else %}
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table mb-0 align-middle">
+        <thead>
+          <tr><th>Fee</th><th class="text-end">Amount</th><th>Applies to</th><th>Status</th><th></th></tr>
+        </thead>
+        <tbody>
+        {% for fee in items %}
+          <tr>
+            <td>{{ fee.name }}</td>
+            <td class="text-end">{{ fee.amount }}</td>
+            <td>{{ fee.school_class|default:"All classes" }}</td>
+            <td>{% if fee.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}</td>
+            <td>
+              <form method="post" action="{% url 'fees:fee_toggle' fee.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                  {% if fee.is_active %}Deactivate{% else %}Activate{% endif %}
+                </button>
+              </form>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5" class="text-muted">No fees set up for this term.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

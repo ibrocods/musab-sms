@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Debtors{% endblock %}
+{% block content %}
+<h1 class="h4 mb-3">Debtors{% if term %}: {{ term }}{% endif %}</h1>
+
+<form method="get" class="row g-2 align-items-end mb-3">
+  <div class="col-md-4">
+    <select name="term" class="form-select">
+      {% for t in terms %}
+        <option value="{{ t.pk }}" {% if term and t.pk == term.pk %}selected{% endif %}>{{ t }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-auto">
+    <button type="submit" class="btn btn-outline-secondary">Show term</button>
+  </div>
+  <div class="col-auto">
+    <a href="{% url 'fees:index' %}{% if term %}?term={{ term.pk }}{% endif %}" class="btn btn-outline-secondary">Back to fees</a>
+  </div>
+</form>
+
+{% if not term %}
+  <div class="alert alert-warning">No term is selected, and no current term is set.</div>
+{% else %}
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table mb-0 align-middle">
+        <thead>
+          <tr><th>ID</th><th>Name</th><th>Class</th><th class="text-end">Charged</th><th class="text-end">Discount</th><th class="text-end">Paid</th><th class="text-end">Owed</th><th></th></tr>
+        </thead>
+        <tbody>
+        {% for row in rows %}
+          <tr>
+            <td>{{ row.student.student_id }}</td>
+            <td>{{ row.student.last_name }} {{ row.student.first_name }}{% if row.archived %} <span class="badge bg-secondary">Archived</span>{% endif %}</td>
+            <td>{{ row.student.school_class|default:"-" }}</td>
+            <td class="text-end">{{ row.charged }}</td>
+            <td class="text-end">{{ row.discount }}</td>
+            <td class="text-end">{{ row.paid }}</td>
+            <td class="text-end fw-semibold">{{ row.balance }}</td>
+            <td><a class="btn btn-sm btn-outline-secondary" href="{% url 'fees:statement' row.student.pk %}?term={{ term.pk }}">Statement</a></td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="8" class="text-muted">Nobody owes money this term.</td></tr>
+        {% endfor %}
+        </tbody>
+        {% if rows %}
+        <tfoot>
+          <tr><th colspan="6">Total owed</th><th class="text-end">{{ total }}</th><th></th></tr>
+        </tfoot>
+        {% endif %}
+      </table>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

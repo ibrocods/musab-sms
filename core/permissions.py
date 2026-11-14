@@ -13,7 +13,7 @@ ROLE_CAPABILITIES = {
         'reverse_payments', 'grant_discounts',
     ],
     'Bursar': [
-        'view_students', 'view_fees', 'collect_fees',
+        'view_students', 'view_fees', 'manage_fees', 'collect_fees',
         'reverse_payments', 'grant_discounts',
     ],
     'Class teacher': [

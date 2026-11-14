@@ -50,6 +50,13 @@
               <a class="nav-link {% if current == 'attendance_report' %}active{% endif %}"
                  href="{% url 'attendance_report' %}">Reports</a>
             </li>
+         
+          {% endif %}
+          {% if caps.view_fees %}
+            <li class="nav-item">
+              <a class="nav-link {% if request.resolver_match.namespace == 'fees' %}active{% endif %}"
+                 href="{% url 'fees:index' %}">Fees</a>
+            </li>
           {% endif %}
         </ul>
 
