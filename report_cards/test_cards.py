@@ -140,9 +140,7 @@ class ReopenTests(CardSetup):
     def test_reopen_is_logged(self):
         card = self.approved_card()
         card.reopen('Correction')
-        self.assertTrue(AuditLog.objects.filter(
-            model_name='report_cards.reportcard', object_id=str(card.pk),
-            action='update', changes__status__0='approved',
-        ).exists() or AuditLog.objects.filter(
+        entry = AuditLog.objects.filter(
             model_name='report_cards.reportcard', object_id=str(card.pk), action='update',
-        ).latest('pk').changes.get('status') == ['approved', 'draft'])
+        ).latest('pk')
+        self.assertEqual(entry.changes['status'], ['approved', 'draft'])
