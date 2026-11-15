@@ -114,3 +114,31 @@ class ReportCard(models.Model):
         self.approved_at = None
         self.reopen_reason = reason[:200]
         self._save_as_permitted()
+
+class CardPrint(models.Model):
+    """One printed copy of an approved report card. Append-only."""
+
+    card = models.ForeignKey(ReportCard, on_delete=models.PROTECT, related_name='prints', editable=False)
+    copy_number = models.PositiveIntegerField(editable=False)
+    layout = models.CharField(max_length=50, editable=False, help_text='Layout used for this copy')
+    printed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='+', editable=False,
+    )
+    printed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['card', 'copy_number']
+        constraints = [
+            models.UniqueConstraint(fields=['card', 'copy_number'], name='unique_copy_per_card'),
+        ]
+
+    def __str__(self):
+        return f'{self.card} copy {self.copy_number}'
+
+    def save(self, *args, **kwargs):
+        if not self._state.adding:
+            raise PermissionError('Print records cannot be changed.')
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        raise PermissionError('Print records cannot be deleted.')

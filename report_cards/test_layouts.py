@@ -1,6 +1,6 @@
 from datetime import date
 from decimal import Decimal
-
+from report_cards.models import CardPrint
 from django.contrib.auth.models import Group, User
 from django.core.management import call_command
 from django.test import Client, TestCase
@@ -90,7 +90,8 @@ class LayoutPageTests(LayoutSetup):
         get_or_create_draft(self.ada, self.term)
         url = reverse('report_cards:print', args=[self.ada.pk])
         response = self.login(self.head).get(url, {'term': self.term.pk})
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(CardPrint.objects.exists())
 
     def test_print_works_for_an_approved_card(self):
         self.approved_card()

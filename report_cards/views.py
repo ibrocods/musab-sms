@@ -16,7 +16,7 @@ from .cards import get_or_create_draft
 from .comments import comments_for, save_class_comment, save_head_remark
 from .layouts import render_card
 from .models import ReportCard
-
+from .printing import record_print
 
 def _term(request):
     pk = request.GET.get('term') or request.POST.get('term')
@@ -160,12 +160,18 @@ def report_card_reopen(request, student_pk):
 
 
 @login_required
-@require_capability('view_grades')
+@require_capability('print_report_cards')
 @require_GET
 def report_card_print(request, student_pk):
     student = get_object_or_404(visible_students(request.user), pk=student_pk)
     term = _term(request)
+    if term is None:
+        messages.error(request, 'No term is selected.')
+        return redirect(reverse('report_cards:index'))
     card = get_object_or_404(ReportCard, student=student, term=term)
-    if not card.is_frozen:
-        raise PermissionDenied('Only an approved card can be printed as final.')
+    try:
+        record_print(card, request.user)
+    except ValidationError as error:
+        messages.error(request, ' '.join(error.messages))
+        return redirect(_card_url(student, term))
     return HttpResponse(render_card(request, card))
