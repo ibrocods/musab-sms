@@ -15,23 +15,26 @@ from .terms import current_term
 
 
 @login_required
-@require_capability('enter_grades')
+@require_capability('view_grades')
 def score_index(request):
     term = current_term()
     entries = []
     if term:
+        can_lock = can(request.user, 'lock_results')
         for class_subject in ClassSubject.objects.select_related('school_class', 'subject'):
-            if can_enter_scores(request.user, class_subject):
+            can_enter = can_enter_scores(request.user, class_subject)
+            if can_enter or can_lock:
                 entries.append({
                     'class_subject': class_subject,
                     'assessments': Assessment.objects.filter(subject=class_subject.subject, term=term),
                     'locked': is_locked(class_subject, term),
+                    'can_enter': can_enter,
                 })
     return render(request, 'scores/index.html', {'term': term, 'entries': entries})
 
 
 @login_required
-@require_capability('enter_grades')
+@require_capability('view_grades')
 @require_http_methods(['GET', 'POST'])
 def score_entry(request, class_subject_pk, assessment_pk):
     class_subject = get_object_or_404(
@@ -41,11 +44,14 @@ def score_entry(request, class_subject_pk, assessment_pk):
 
     if assessment.subject_id != class_subject.subject_id:
         raise Http404('This assessment belongs to a different subject.')
-    if not can_enter_scores(request.user, class_subject):
+
+    can_enter = can_enter_scores(request.user, class_subject)
+    can_lock = can(request.user, 'lock_results')
+    if not (can_enter or can_lock):
         raise PermissionDenied
 
     locked = is_locked(class_subject, assessment.term)
-    if request.method == 'POST' and locked:
+    if request.method == 'POST' and (not can_enter or locked):
         raise PermissionDenied
 
     students = list(
@@ -89,7 +95,8 @@ def score_entry(request, class_subject_pk, assessment_pk):
         'assessment': assessment,
         'rows': rows,
         'locked': locked,
-        'can_lock': can(request.user, 'lock_results'),
+        'can_enter': can_enter,
+        'can_lock': can_lock,
     })
 
 

@@ -55,7 +55,7 @@
               <input type="number" step="0.01" min="0" max="{{ assessment.max_mark }}"
                      name="score_{{ row.student.pk }}" value="{{ row.value }}"
                      class="form-control form-control-sm {% if row.error %}is-invalid{% endif %}"
-                     {% if locked %}disabled{% endif %}>
+                    {% if locked or not can_enter %}disabled{% endif %}>
               {% if row.error %}<div class="invalid-feedback">{{ row.error }}</div>{% endif %}
             </td>
           </tr>
@@ -67,7 +67,7 @@
     </div>
   </div>
 
-  {% if rows and not locked %}<button type="submit" class="btn btn-school mt-3">Save marks</button>{% endif %}
+   {% if rows and can_enter and not locked %}<button type="submit" class="btn btn-school mt-3">Save marks</button>{% endif %}
   <a href="{% url 'score_index' %}" class="ms-2">Back</a>
 </form>
 {% endblock %}

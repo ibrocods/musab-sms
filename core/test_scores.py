@@ -71,9 +71,18 @@ class ScoreRuleTests(ScoreSetup):
     def test_class_teacher_can_enter_for_their_class(self):
         self.assertTrue(can_enter_scores(self.class_teacher, self.maths_link))
 
-    def test_head_teacher_cannot_open_the_entry_page(self):
+    def test_head_teacher_sees_entry_page_read_only(self):
         url = reverse('score_entry', args=[self.maths_link.pk, self.maths_exam.pk])
-        self.assertEqual(self.login(self.head).get(url).status_code, 403)
+        response = self.login(self.head).get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context['can_enter'])
+        self.assertTrue(response.context['can_lock'])
+
+    def test_head_teacher_cannot_post_marks(self):
+        url = reverse('score_entry', args=[self.maths_link.pk, self.maths_exam.pk])
+        response = self.login(self.head).post(url, {f'score_{self.ada.pk}': '30'})
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(Score.objects.exists())
 
 
 class ScoreValueTests(ScoreSetup):

@@ -124,7 +124,8 @@ class Stage2EndToEnd(TestCase):
         self.assertEqual(teacher.get(reverse('score_index')).status_code, 200)
         self.assertEqual(teacher.get(reverse('attendance_index')).status_code, 403)
 
-    def test_head_teacher_cannot_enter_scores_directly(self):
+    def test_head_teacher_is_read_only_on_scores(self):
         url = reverse('score_entry', args=[self.maths_link.pk, self.exam.pk])
         response = self.login(self.head).get(url)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context['can_enter'])

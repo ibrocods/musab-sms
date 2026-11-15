@@ -34,7 +34,7 @@
             </li>
           {% endif %}
 
-          {% if caps.enter_grades %}
+          {% if caps.enter_grades or caps.lock_results %}
             <li class="nav-item">
               <a class="nav-link {% if current == 'score_index' or current == 'score_entry' %}active{% endif %}"
                  href="{% url 'score_index' %}">Scores</a>
