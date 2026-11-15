@@ -56,6 +56,9 @@ def wipe_demo():
     from fees.demo import wipe_fee_demo
     wipe_fee_demo()
 
+    from report_cards.demo import wipe_report_card_demo
+    wipe_report_card_demo()
+
     Student.objects.filter(is_demo=True).delete()
     SchoolClass.objects.filter(is_demo=True).delete()
     Subject.objects.filter(is_demo=True).delete()

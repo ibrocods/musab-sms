@@ -33,3 +33,7 @@
 - **Every printed copy is recorded and numbered.** Print records can't be changed or deleted, and each one is in the audit log.
 - **Previews leave no record.** Only the print action creates a print record.
 - **Layouts are chosen by a setting.** Switching layout needs no code change. Each print records which layout was used.
+- **Head teacher sees score pages read-only** so they can lock and unlock results. Only subject and class teachers can enter marks.
+- **Report cards freeze comments.** Comments can't change while a card is approved, and reopening is the only way to change them.
+- **Demo wipe removes report card records** in order: print records, comments, cards.
+- **Stage 4 is complete:** calculations, comments, card records with frozen snapshots, approval rules, layout with switching, numbered prints, and whole-stage tests.
