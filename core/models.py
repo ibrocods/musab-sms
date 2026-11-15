@@ -37,6 +37,10 @@ class SchoolProfile(models.Model):
         default=300,
         help_text='Longest allowed length for teacher and head teacher comments, in characters',
     )
+    report_card_layout = models.CharField(
+        max_length=50, default='default',
+        help_text='Name of the report card layout. Matches a folder under templates/report_cards/layouts/',
+    )
     class Meta:
         verbose_name = 'School profile'
         # Django stores each capability as a permission. They're attached to this

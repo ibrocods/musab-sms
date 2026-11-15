@@ -19,4 +19,5 @@ CAPABILITIES = {
     'manage_fees': 'Set up fee items',
     'write_class_comment': 'Write class teacher comments',
     'write_head_remark': 'Write head teacher remarks',
+    'print_report_cards': 'Print final report cards',
 }

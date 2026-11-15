@@ -29,3 +29,7 @@
 - **Demo tooling is the only place that crosses apps.** core/demo.py imports fees lazily, inside functions, so core still loads without fees. Nothing else in core imports fees.
 - **Demo wipe removes money with queryset deletes,** in order: reversals, payments, discounts, fee items. These match only demo students and demo terms.
 - **Stage 3 is complete:** fee items, payments with unique receipts and reversals, calculated balances, discounts, bursar pages, and end-to-end tests.
+- **Only approved cards print as final.** Printing needs the print_report_cards capability (head teacher and exams officer by default).
+- **Every printed copy is recorded and numbered.** Print records can't be changed or deleted, and each one is in the audit log.
+- **Previews leave no record.** Only the print action creates a print record.
+- **Layouts are chosen by a setting.** Switching layout needs no code change. Each print records which layout was used.
