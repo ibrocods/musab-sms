@@ -22,6 +22,10 @@
     <button type="submit" class="btn btn-school" {% if problems %}disabled{% endif %}>Approve and freeze</button>
   </form>
 {% endif %}
+{% if can_print %}
+  <a href="{% url 'report_cards:print' student.pk %}?term={{ term.pk }}"
+     class="btn btn-school no-print mb-3" target="_blank" rel="noopener">Print card</a>
+{% endif %}
 
 {% if card.is_frozen and request.user.is_authenticated %}
   <div class="no-print mb-3">

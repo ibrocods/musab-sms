@@ -1,0 +1,26 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Report card</title>
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% url 'school_css' %}">
+    <style>
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #fff !important; }
+    }
+  </style>
+</head>
+<body class="bg-white">
+  <main class="container py-3">
+    {{ card_html|safe }}
+    <div class="no-print mt-4">
+      <button type="button" class="btn btn-school" onclick="window.print()">Print</button>
+      <a href="javascript:window.close()" class="ms-2">Close</a>
+    </div>
+  </main>
+</body>
+</html>

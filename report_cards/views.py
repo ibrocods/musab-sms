@@ -78,6 +78,7 @@ def report_card_view(request, student_pk):
         'card_html': html,
         'problems': [] if frozen else approval_problems(student, term),
         'can_approve': can(request.user, 'approve_report_cards') and not frozen,
+        'can_print': can(request.user, 'print_report_cards') and frozen,
         'can_comment': can(request.user, 'write_class_comment') and is_own_class and not frozen,
         'can_remark': can(request.user, 'write_head_remark') and not frozen,
         'class_comment': comments['class_teacher'].text if 'class_teacher' in comments else '',
@@ -174,4 +175,5 @@ def report_card_print(request, student_pk):
     except ValidationError as error:
         messages.error(request, ' '.join(error.messages))
         return redirect(_card_url(student, term))
-    return HttpResponse(render_card(request, card))
+    html = render_card(request, card)
+    return render(request, 'report_cards/print_page.html', {'card_html': html})
