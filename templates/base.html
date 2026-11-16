@@ -8,89 +8,120 @@
 
   <link rel="stylesheet" href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}">
   <link rel="stylesheet" href="{% static 'vendor/bootstrap-icons/bootstrap-icons.min.css' %}">
-  <link rel="stylesheet" href="{% static 'css/custom.css' %}">
   <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/layout.css' %}">
   <link rel="stylesheet" href="{% url 'school_css' %}">
 </head>
-<body class="bg-light">
+<body>
 
-{% with current=request.resolver_match.url_name %}
-<nav class="navbar navbar-expand-lg navbar-dark bg-school mb-4">
-  <div class="container">
-    <a class="navbar-brand" href="{% url 'home' %}">{{ school.name }}</a>
+{% with current=request.resolver_match.url_name ns=request.resolver_match.namespace %}
+{% if user.is_authenticated %}
+<div class="app">
 
-    {% if user.is_authenticated %}
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-              data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false"
-              aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-mark"><i class="bi bi-mortarboard-fill"></i></span>
+      <span class="brand-name">{{ school.name }}</span>
+    </div>
 
-      <div class="collapse navbar-collapse" id="mainNav">
-        <ul class="navbar-nav me-auto">
-          {% if caps.view_students %}
-            <li class="nav-item">
-              <a class="nav-link {% if current == 'student_list' %}active{% endif %}"
-                 href="{% url 'student_list' %}">Students</a>
-            </li>
-          {% endif %}
+    <nav class="sidebar-nav">
+      <div class="nav-group-label">Overview</div>
+      <a class="nav-item {% if current == 'home' %}active{% endif %}" href="{% url 'home' %}">
+        <i class="bi bi-grid-1x2"></i><span>Dashboard</span>
+      </a>
 
-          {% if caps.enter_grades or caps.lock_results %}
-            <li class="nav-item">
-              <a class="nav-link {% if current == 'score_index' or current == 'score_entry' %}active{% endif %}"
-                 href="{% url 'score_index' %}">Scores</a>
-            </li>
-          {% endif %}
+      {% if caps.view_students or caps.view_attendance or caps.enter_grades or caps.lock_results %}
+      <div class="nav-group-label">Academics</div>
+      {% endif %}
+      {% if caps.view_students %}
+      <a class="nav-item {% if current == 'student_list' %}active{% endif %}" href="{% url 'student_list' %}">
+        <i class="bi bi-people"></i><span>Students</span>
+      </a>
+      {% endif %}
+      {% if caps.enter_grades or caps.lock_results %}
+      <a class="nav-item {% if current == 'score_index' or current == 'score_entry' %}active{% endif %}" href="{% url 'score_index' %}">
+        <i class="bi bi-pencil-square"></i><span>Scores</span>
+      </a>
+      {% endif %}
+      {% if caps.view_attendance %}
+      <a class="nav-item {% if current == 'attendance_index' or current == 'attendance_register' %}active{% endif %}" href="{% url 'attendance_index' %}">
+        <i class="bi bi-calendar-check"></i><span>Attendance</span>
+      </a>
+      {% endif %}
+      {% if caps.view_grades %}
+      <a class="nav-item {% if ns == 'report_cards' %}active{% endif %}" href="{% url 'report_cards:index' %}">
+        <i class="bi bi-card-checklist"></i><span>Report cards</span>
+      </a>
+      {% endif %}
 
-          {% if caps.view_attendance %}
-            <li class="nav-item">
-              <a class="nav-link {% if current == 'attendance_index' or current == 'attendance_register' %}active{% endif %}"
-                 href="{% url 'attendance_index' %}">Attendance</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link {% if current == 'attendance_report' %}active{% endif %}"
-                 href="{% url 'attendance_report' %}">Reports</a>
-            </li>
-         
-          {% endif %}
-          {% if caps.view_fees %}
-            <li class="nav-item">
-              <a class="nav-link {% if request.resolver_match.namespace == 'fees' %}active{% endif %}"
-                 href="{% url 'fees:index' %}">Fees</a>
-            </li>
-          {% endif %}
-                    {% if caps.view_grades %}
-            <li class="nav-item">
-              <a class="nav-link {% if request.resolver_match.namespace == 'report_cards' %}active{% endif %}"
-                 href="{% url 'report_cards:index' %}">Report cards</a>
-            </li>
-          {% endif %}
-        </ul>
+      {% if caps.view_fees %}
+      <div class="nav-group-label">Finance</div>
+      <a class="nav-item {% if ns == 'fees' and current == 'index' %}active{% endif %}" href="{% url 'fees:index' %}">
+        <i class="bi bi-wallet2"></i><span>Fees</span>
+      </a>
+      <a class="nav-item {% if current == 'debtors' %}active{% endif %}" href="{% url 'fees:debtors' %}">
+        <i class="bi bi-exclamation-circle"></i><span>Debtors</span>
+      </a>
+      {% endif %}
 
-        <div class="d-flex align-items-center">
-          <span class="navbar-text text-white me-3">{{ user.get_username }}</span>
-          <form method="post" action="{% url 'logout' %}" class="d-inline">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-sm btn-outline-light">Sign out</button>
-          </form>
-        </div>
+      {% if caps.view_attendance %}
+      <div class="nav-group-label">Reports</div>
+      <a class="nav-item {% if current == 'attendance_report' %}active{% endif %}" href="{% url 'attendance_report' %}">
+        <i class="bi bi-bar-chart"></i><span>Attendance report</span>
+      </a>
+      {% endif %}
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-line">
+        <span class="user-avatar">{{ user.get_username|slice:":1"|upper }}</span>
+        <span class="user-name">{{ user.get_username }}</span>
       </div>
-    {% endif %}
+      <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn-signout"><i class="bi bi-box-arrow-right"></i> Sign out</button>
+      </form>
+    </div>
+  </aside>
+
+  <div class="scrim" id="scrim" onclick="toggleSidebar(false)"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-toggle" type="button" onclick="toggleSidebar(true)" aria-label="Open menu">
+        <i class="bi bi-list"></i>
+      </button>
+      <div class="topbar-title">{% block heading %}{% endblock %}</div>
+      {% if term %}
+        <div class="term-chip">{{ term }}</div>
+      {% endif %}
+    </header>
+
+    <div class="content">
+      {% for message in messages %}
+        <div class="flash flash-{% if message.tags == 'error' %}danger{% elif message.tags == 'warning' %}warning{% else %}success{% endif %}" role="alert">
+          <span>{{ message }}</span>
+          <button type="button" class="flash-close" onclick="this.parentElement.remove()" aria-label="Close">&times;</button>
+        </div>
+      {% endfor %}
+      {% block content %}{% endblock %}
+    </div>
   </div>
-</nav>
+
+</div>
+{% else %}
+  <div class="content-plain">
+    {% block content_plain %}{% endblock %}
+  </div>
+{% endif %}
 {% endwith %}
 
-<main class="container">
-  {% for message in messages %}
-    <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'warning' %}warning{% else %}success{% endif %} alert-dismissible fade show" role="alert">
-      {{ message }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-  {% endfor %}
-
-  {% block content %}{% endblock %}
-</main>
-
 <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script>
+  function toggleSidebar(open) {
+    document.getElementById('sidebar').classList.toggle('open', open);
+    document.getElementById('scrim').classList.toggle('show', open);
+  }
+</script>
 </body>
 </html>
