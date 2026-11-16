@@ -1,0 +1,75 @@
+/* Inter, stored locally so the school system works offline */
+@font-face {
+  font-family: 'Inter';
+  src: url('/static/vendor/inter/Inter-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/static/vendor/inter/Inter-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/static/vendor/inter/Inter-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/static/vendor/inter/Inter-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Design tokens. Change a value here and every page follows.
+   School colours are injected by the school_css view, so they're not set here. */
+:root {
+  /* Type */
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Surfaces and text */
+  --surface-page: #F5F6F3;
+  --surface-card: #FFFFFF;
+  --surface-muted: #EEF1EC;
+  --text-strong: #1B2A24;
+  --text-body: #33423B;
+  --text-muted: #6B7A73;
+  --border: #E2E7E3;
+
+  /* Status (fixed across schools, so a red always means trouble) */
+  --status-ok: #2E7D4F;
+  --status-warn: #B7791F;
+  --status-danger: #B42318;
+  --status-info: #2B6CB0;
+
+  /* Shape and space */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --shadow-card: 0 1px 2px rgba(27, 42, 36, 0.06), 0 4px 12px rgba(27, 42, 36, 0.04);
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--text-body);
+  background: var(--surface-page);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Money, marks and counts line up in columns */
+.num {
+  font-variant-numeric: tabular-nums;
+}
