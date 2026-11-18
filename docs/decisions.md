@@ -37,3 +37,8 @@
 - **Report cards freeze comments.** Comments can't change while a card is approved, and reopening is the only way to change them.
 - **Demo wipe removes report card records** in order: print records, comments, cards.
 - **Stage 4 is complete:** calculations, comments, card records with frozen snapshots, approval rules, layout with switching, numbered prints, and whole-stage tests.
+
+- **School administrator role.** Holds staff management, school setup and audit log viewing. Head teachers don't get these by default. The superuser stays with the developer as technical owner.
+- **Staff are deactivated, not deleted.** Deactivation releases their class and subject assignments. The audit log keeps their history.
+- **Temporary passwords are shown once** to the administrator. Forced change at first sign-in is part of the staff stage.
+- **Settings are in the app, not the Django admin.** The Django admin is for the developer only.

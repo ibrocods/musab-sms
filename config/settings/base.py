@@ -13,6 +13,8 @@ INSTALLED_APPS = [
     'core',
     'fees',
     'report_cards',
+    'dashboard',
+    'school_admin',
 ]
 
 MIDDLEWARE = [

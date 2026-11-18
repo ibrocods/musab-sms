@@ -30,7 +30,12 @@ ROLE_CAPABILITIES = {
     ],
     'Records officer': ['view_students', 'manage_students'],
     'Read-only staff': ['view_students', 'view_attendance', 'view_grades'],
+    
+    'School administrator': [
+        'view_students', 'manage_staff', 'manage_school_setup', 'view_audit_log',
+    ],
 }
+
 
 
 def can(user, capability):

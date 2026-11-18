@@ -20,9 +20,10 @@ from core import views, score_views, attendance_views
 from django.urls import include, path
 from django.contrib.auth import views as auth_views
 from core import student_views, report_views
+from dashboard import views as dashboard_views
 urlpatterns = [
     path('admin/', admin.site.urls),
-     path('', views.home, name='home'),
+    path('', dashboard_views.home, name='home'),
      path('school.css', views.school_css, name='school_css'),
     path('accounts/login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
@@ -37,4 +38,6 @@ path('attendance/<int:class_pk>/', attendance_views.attendance_register, name='a
 path('reports/attendance/', report_views.attendance_report, name='attendance_report'),
 path('reports/attendance/csv/', report_views.attendance_report_csv, name='attendance_report_csv'),
 path('fees/', include('fees.urls')),
+path('report-cards/', include('report_cards.urls')),
+
 ]

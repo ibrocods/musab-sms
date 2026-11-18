@@ -20,4 +20,7 @@ CAPABILITIES = {
     'write_class_comment': 'Write class teacher comments',
     'write_head_remark': 'Write head teacher remarks',
     'print_report_cards': 'Print final report cards',
+    'manage_staff': 'Add, edit and deactivate staff',
+    'manage_school_setup': 'Manage subjects, classes, terms and school settings',
+    'view_audit_log': 'View the audit log',
 }
