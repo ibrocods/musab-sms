@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Subjects and classes{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Subjects and classes</h1>
+    <p class="page-sub">Changes take effect straight away, and every change is recorded.</p>
+  </div>
+</div>
+
+<div class="setup-grid">
+  <a class="setup-tile" href="{% url 'school_admin:subject_list' %}">
+    <i class="bi bi-book"></i>
+    <div class="setup-tile-title">Subjects</div>
+    <div class="setup-tile-sub">{{ subject_count }} active subjects</div>
+  </a>
+  <a class="setup-tile" href="{% url 'school_admin:class_list' %}">
+    <i class="bi bi-collection"></i>
+    <div class="setup-tile-title">Classes</div>
+    <div class="setup-tile-sub">{{ class_count }} active classes</div>
+  </a>
+</div>
+
+{% endblock %}

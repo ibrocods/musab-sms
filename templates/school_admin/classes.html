@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Classes{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Classes</h1>
+    <p class="page-sub">Each class, its class teacher, and the subjects it studies.</p>
+  </div>
+  <div class="page-actions">
+    <a href="{% url 'school_admin:class_create' %}" class="btn-ui btn-ui-primary"><i class="bi bi-plus-lg"></i> Add class</a>
+    <a href="{% url 'school_admin:setup_home' %}" class="btn-ui btn-ui-secondary">Back to setup</a>
+  </div>
+</div>
+
+{% if classes %}
+<div class="table-wrap">
+  <table class="table-ui">
+    <thead>
+      <tr>
+        <th>Class</th><th>Level</th><th>Class teacher</th>
+        <th class="num-col">Subjects</th><th class="num-col">Students</th><th>Status</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in classes %}
+      <tr>
+        <td>{{ c.name }}{% if c.stream %} <span class="text-muted small">{{ c.stream }}</span>{% endif %}</td>
+        <td>{{ c.level|default:"-" }}</td>
+        <td>{{ c.class_teacher.get_username|default:"Not assigned" }}</td>
+        <td class="num-col">{{ c.subject_count }}</td>
+        <td class="num-col">{{ c.student_count }}</td>
+        <td>
+          {% if c.is_active %}
+            {% include 'components/badge.html' with label='Active' tone='ok' %}
+          {% else %}
+            {% include 'components/badge.html' with label='Inactive' tone='neutral' %}
+          {% endif %}
+        </td>
+        <td class="table-actions">
+          <a class="btn-ui btn-ui-secondary btn-ui-sm" href="{% url 'school_admin:class_detail' c.pk %}">Open</a>
+          <form method="post" action="{% url 'school_admin:class_toggle' c.pk %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn-ui btn-ui-secondary btn-ui-sm">
+              {% if c.is_active %}Deactivate{% else %}Activate{% endif %}
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="table-wrap">
+  {% include 'components/empty.html' with title='No classes yet' message='Add the classes your school runs.' icon='bi-collection' %}
+</div>
+{% endif %}
+
+{% endblock %}

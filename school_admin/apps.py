@@ -6,6 +6,7 @@ class SchoolAdminConfig(AppConfig):
     name = 'school_admin'
 
     def ready(self):
-        from core.models import ClassSubject
+        from core.models import ClassSubject, Subject
         from core.signals import track
         track(ClassSubject)
+        track(Subject)

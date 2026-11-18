@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Subjects{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Subjects</h1>
+    <p class="page-sub">What the school teaches. Add a subject to a class from the class page.</p>
+  </div>
+  <div class="page-actions">
+    <a href="{% url 'school_admin:subject_create' %}" class="btn-ui btn-ui-primary"><i class="bi bi-plus-lg"></i> Add subject</a>
+    <a href="{% url 'school_admin:setup_home' %}" class="btn-ui btn-ui-secondary">Back to setup</a>
+  </div>
+</div>
+
+{% if subjects %}
+<div class="table-wrap">
+  <table class="table-ui">
+    <thead>
+      <tr><th>Name</th><th>Code</th><th class="num-col">Classes</th><th>Status</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for subject in subjects %}
+      <tr>
+        <td>{{ subject.name }}</td>
+        <td class="num">{{ subject.code|default:"-" }}</td>
+        <td class="num-col">{{ subject.class_count }}</td>
+        <td>
+          {% if subject.is_active %}
+            {% include 'components/badge.html' with label='Active' tone='ok' %}
+          {% else %}
+            {% include 'components/badge.html' with label='Inactive' tone='neutral' %}
+          {% endif %}
+        </td>
+        <td class="table-actions">
+          <a class="btn-ui btn-ui-secondary btn-ui-sm" href="{% url 'school_admin:subject_edit' subject.pk %}">Edit</a>
+          <form method="post" action="{% url 'school_admin:subject_toggle' subject.pk %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn-ui btn-ui-secondary btn-ui-sm">
+              {% if subject.is_active %}Deactivate{% else %}Activate{% endif %}
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="table-wrap">
+  {% include 'components/empty.html' with title='No subjects yet' message='Add the subjects your school teaches.' icon='bi-book' %}
+</div>
+{% endif %}
+
+{% endblock %}

@@ -41,6 +41,10 @@
       </div>
     </div>
 
+    <div class="role-section" id="section-replace">
+      {% include 'components/field.html' with field=form.replace %}
+    </div>
+
     <div class="form-actions">
       <button type="submit" class="btn-ui btn-ui-primary">Create account</button>
       <a href="{% url 'school_admin:staff_list' %}" class="btn-ui btn-ui-secondary">Cancel</a>
@@ -50,13 +54,19 @@
 
 <script>
   (function () {
+    const TEACHER_ROLES = ['Class teacher', 'Subject teacher'];
     const role = document.getElementById('id_role');
     const classSection = document.getElementById('section-class');
     const subjectSection = document.getElementById('section-subjects');
+    const replaceSection = document.getElementById('section-replace');
+
     function syncRole() {
-      classSection.hidden = role.value !== 'Class teacher';
-      subjectSection.hidden = role.value !== 'Subject teacher';
+      const isTeacher = TEACHER_ROLES.includes(role.value);
+      classSection.hidden = !isTeacher;
+      subjectSection.hidden = !isTeacher;
+      replaceSection.hidden = !isTeacher;
     }
+
     role.addEventListener('change', syncRole);
     syncRole();
   })();

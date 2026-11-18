@@ -2,7 +2,7 @@
 {% block title %}Dashboard{% endblock %}
 {% block content %}
 <div class="mb-4">
-  <h1 class="greet-title">Good {{ greeting }}, {{ user.get_username.first_name }}</h1>
+   <h1 class="greet-title">Good {{ greeting }}, {{ user.get_full_name|default:user.get_username }}</h1>
   <p class="greet-sub">{{ today|date:"l, j F Y" }}{% if term %} &middot; {{ term }}{% endif %}</p>
 </div>
 

@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}Temporary access{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Temporary access</h1>
+    <p class="page-sub">Extra permissions for a set period. They end on their own, or you can end them now.</p>
+  </div>
+  <div class="page-actions">
+    <a href="{% url 'school_admin:grant_create' %}" class="btn-ui btn-ui-primary">
+      <i class="bi bi-key"></i> Give access
+    </a>
+  </div>
+</div>
+
+<h2 class="card-ui-title">Active now</h2>
+{% if active %}
+<div class="table-wrap mb-4">
+  <table class="table-ui">
+    <thead>
+      <tr><th>Staff member</th><th>Permission</th><th>Reason</th><th>Given by</th><th>Ends</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for row in active %}
+      <tr>
+        <td>{{ row.grant.user.get_full_name|default:row.grant.user.get_username }}</td>
+        <td>{{ row.label }}</td>
+        <td>{{ row.grant.reason }}</td>
+        <td>{{ row.grant.granted_by.get_username|default:"-" }}</td>
+        <td>{{ row.grant.ends_at|date:"d M Y, H:i" }}</td>
+        <td class="table-actions">
+          <form method="post" action="{% url 'school_admin:grant_revoke' row.grant.pk %}"
+                onsubmit="return confirm('End this access now?');">
+            {% csrf_token %}
+            <button type="submit" class="btn-ui btn-ui-danger btn-ui-sm">End now</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="table-wrap mb-4">
+  {% include 'components/empty.html' with title='No temporary access right now' message='Access you give out will show here until it ends.' icon='bi-key' %}
+</div>
+{% endif %}
+
+<h2 class="card-ui-title">Past</h2>
+{% if past %}
+<div class="table-wrap">
+  <table class="table-ui">
+    <thead>
+      <tr><th>Staff member</th><th>Permission</th><th>Reason</th><th>Status</th><th>Ended</th></tr>
+    </thead>
+    <tbody>
+      {% for row in past %}
+      <tr>
+        <td>{{ row.grant.user.get_full_name|default:row.grant.user.get_username }}</td>
+        <td>{{ row.label }}</td>
+        <td>{{ row.grant.reason }}</td>
+        <td>
+          {% if row.status == 'Ended early' %}
+            {% include 'components/badge.html' with label=row.status tone='warn' %}
+          {% else %}
+            {% include 'components/badge.html' with label=row.status tone='neutral' %}
+          {% endif %}
+        </td>
+        <td>{% if row.grant.revoked_at %}{{ row.grant.revoked_at|date:"d M Y, H:i" }}{% else %}{{ row.grant.ends_at|date:"d M Y, H:i" }}{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="table-wrap">
+  {% include 'components/empty.html' with title='No past access yet' icon='bi-clock-history' %}
+</div>
+{% endif %}
+
+{% endblock %}

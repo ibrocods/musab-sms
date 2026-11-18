@@ -25,6 +25,7 @@
         <th>Class led</th>
         <th>Teaches</th>
         <th>Status</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -47,6 +48,9 @@
           {% else %}
             {% include 'components/badge.html' with label='Inactive' tone='neutral' %}
           {% endif %}
+        </td>
+        <td class="table-actions">
+          <a class="btn-ui btn-ui-secondary btn-ui-sm" href="{% url 'school_admin:staff_edit' row.user.pk %}">Edit</a>
         </td>
       </tr>
       {% endfor %}

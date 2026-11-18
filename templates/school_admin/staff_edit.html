@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% block title %}Edit staff{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Edit {{ target.get_username }}</h1>
+    <p class="page-sub">Changing the role removes the old classes and subjects, so set them again.</p>
+  </div>
+  <div class="page-actions">
+    <a href="{% url 'school_admin:staff_list' %}" class="btn-ui btn-ui-secondary">Back to staff</a>
+  </div>
+</div>
+
+<div class="card-ui form-ui">
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-grid">
+      <div class="field-ui">
+        <label for="first_name">First name</label>
+        <input id="first_name" name="first_name" value="{{ target.first_name }}" required>
+      </div>
+      <div class="field-ui">
+        <label for="last_name">Last name</label>
+        <input id="last_name" name="last_name" value="{{ target.last_name }}" required>
+      </div>
+      <div class="field-ui">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" value="{{ target.email }}">
+      </div>
+      <div class="field-ui">
+        <label for="role">Role</label>
+        <select id="role" name="role">
+          {% for r in roles %}
+            <option value="{{ r }}" {% if r == current_role %}selected{% endif %}>{{ r }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="role-section" id="section-class">
+      <div class="field-ui">
+        <label for="class_led">Class to lead</label>
+        <select id="class_led" name="class_led">
+          <option value="">No class</option>
+          {% for c in classes %}
+            <option value="{{ c.pk }}" {% if c.class_teacher_id == target.pk %}selected{% endif %}>
+              {{ c.name }}{% if c.class_teacher and c.class_teacher_id != target.pk %} (currently {{ c.class_teacher.get_username }}){% endif %}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="role-section" id="section-subjects">
+      <div class="field-ui">
+        <label>Subjects to teach</label>
+        <div class="check-list">
+          {% for link in links %}
+            <label class="check-row">
+              <input type="checkbox" name="teaching" value="{{ link.pk }}" {% if link.teacher_id == target.pk %}checked{% endif %}>
+              <span>
+                {{ link.subject.name }} in {{ link.school_class.name }}
+                {% if link.teacher and link.teacher_id != target.pk %}<span class="text-muted">(currently {{ link.teacher.get_username }})</span>{% endif %}
+              </span>
+            </label>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="role-section" id="section-replace">
+      <div class="field-ui">
+        <label class="check-row">
+          <input type="checkbox" name="replace" value="1">
+          <span>Replace current teachers</span>
+        </label>
+        <div class="field-help">Moves any class or subject already held by someone else to this person.</div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn-ui btn-ui-primary">Save changes</button>
+    </div>
+  </form>
+</div>
+
+<div class="card-ui">
+  <div class="card-ui-title">Account actions</div>
+  <div class="page-actions">
+    <form method="post" action="{% url 'school_admin:staff_reset' target.pk %}">
+      {% csrf_token %}
+      <button type="submit" class="btn-ui btn-ui-secondary">Reset password</button>
+    </form>
+    {% if target.is_active %}
+    <form method="post" action="{% url 'school_admin:staff_deactivate' target.pk %}"
+          onsubmit="return confirm('Deactivate this account? Their classes and subjects will be released.');">
+      {% csrf_token %}
+      <button type="submit" class="btn-ui btn-ui-danger">Deactivate</button>
+    </form>
+    {% else %}
+    <form method="post" action="{% url 'school_admin:staff_reactivate' target.pk %}">
+      {% csrf_token %}
+      <button type="submit" class="btn-ui btn-ui-primary">Reactivate</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  (function () {
+    const TEACHER_ROLES = ['Class teacher', 'Subject teacher'];
+    const role = document.getElementById('role');
+    const classSection = document.getElementById('section-class');
+    const subjectSection = document.getElementById('section-subjects');
+    const replaceSection = document.getElementById('section-replace');
+
+    function syncRole() {
+      const isTeacher = TEACHER_ROLES.includes(role.value);
+      classSection.hidden = !isTeacher;
+      subjectSection.hidden = !isTeacher;
+      replaceSection.hidden = !isTeacher;
+    }
+
+    role.addEventListener('change', syncRole);
+    syncRole();
+  })();
+</script>
+{% endblock %}
