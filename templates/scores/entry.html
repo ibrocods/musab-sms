@@ -1,73 +1,86 @@
 {% extends 'base.html' %}
 {% block title %}Enter scores{% endblock %}
 {% block content %}
-<h1 class="h4 mb-1">{{ assessment.name }}: {{ class_subject.subject }}</h1>
-<p class="text-muted mb-3">
-  {{ class_subject.school_class }}, {{ assessment.term }}. Out of {{ assessment.max_mark }}.
-</p>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ assessment.name }}: {{ class_subject.subject }}</h1>
+    <p class="page-sub">{{ class_subject.school_class }} &middot; {{ assessment.term }} &middot; out of {{ assessment.max_mark }}</p>
+  </div>
+  <div class="page-actions">
+    <a href="{% url 'score_index' %}" class="btn-ui btn-ui-secondary">Back to scores</a>
+  </div>
+</div>
 
 {% if locked %}
-  <div class="alert alert-secondary">
-    These results are locked. Marks cannot be changed until a head teacher or exams officer unlocks them.
+  <div class="banner-locked">
+    <i class="bi bi-lock-fill"></i>
+    <span>These results are locked. Marks cannot be changed until a head teacher or exams officer unlocks them.</span>
   </div>
 {% endif %}
 
 {% if can_lock %}
-  <div class="card shadow-sm mb-3">
-    <div class="card-body">
-      {% if locked %}
-        <form method="post" action="{% url 'result_lock' class_subject.pk assessment.term.pk %}" class="row g-2 align-items-center">
-          {% csrf_token %}
-          <input type="hidden" name="action" value="unlock">
-          <div class="col-md-6">
-            <input type="text" name="reason" class="form-control" maxlength="200" required
-                   placeholder="Reason for unlocking, for example Wrong mark on script">
-          </div>
-          <div class="col-md-auto">
-            <button type="submit" class="btn btn-outline-danger">Unlock results</button>
-          </div>
-        </form>
-      {% else %}
-        <form method="post" action="{% url 'result_lock' class_subject.pk assessment.term.pk %}">
-          {% csrf_token %}
-          <input type="hidden" name="action" value="lock">
-          <button type="submit" class="btn btn-school">Lock results for this subject and term</button>
-        </form>
-      {% endif %}
-    </div>
-  </div>
+<div class="card-ui">
+  {% if locked %}
+    <form method="post" action="{% url 'result_lock' class_subject.pk assessment.term.pk %}" class="lock-form">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="unlock">
+      <input type="text" name="reason" maxlength="200" required
+             placeholder="Reason for unlocking, for example Wrong mark on script">
+      <button type="submit" class="btn-ui btn-ui-danger">Unlock results</button>
+    </form>
+  {% else %}
+    <form method="post" action="{% url 'result_lock' class_subject.pk assessment.term.pk %}" class="lock-form">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="lock">
+      <span class="text-muted small">Lock once all marks are in. Locked results can't be changed.</span>
+      <button type="submit" class="btn-ui btn-ui-primary">Lock results</button>
+    </form>
+  {% endif %}
+</div>
 {% endif %}
 
 <form method="post">
   {% csrf_token %}
-  <div class="card shadow-sm">
-    <div class="table-responsive">
-      <table class="table mb-0 align-middle">
-        <thead>
-          <tr><th>ID</th><th>Name</th><th style="width: 180px;">Mark</th></tr>
-        </thead>
-        <tbody>
+
+  {% if rows %}
+  <div class="table-wrap">
+    <table class="table-ui">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Mark</th>
+        </tr>
+      </thead>
+      <tbody>
         {% for row in rows %}
-          <tr>
-            <td>{{ row.student.student_id }}</td>
-            <td>{{ row.student.last_name }} {{ row.student.first_name }}</td>
-            <td>
-              <input type="number" step="0.01" min="0" max="{{ assessment.max_mark }}"
-                     name="score_{{ row.student.pk }}" value="{{ row.value }}"
-                     class="form-control form-control-sm {% if row.error %}is-invalid{% endif %}"
-                    {% if locked or not can_enter %}disabled{% endif %}>
-              {% if row.error %}<div class="invalid-feedback">{{ row.error }}</div>{% endif %}
-            </td>
-          </tr>
-        {% empty %}
-          <tr><td colspan="3" class="text-muted">No students in this class.</td></tr>
+        <tr>
+          <td class="num">{{ row.student.student_id }}</td>
+          <td>{{ row.student.last_name }} {{ row.student.first_name }}</td>
+          <td>
+            <input type="number" step="0.01" min="0" max="{{ assessment.max_mark }}"
+                   name="score_{{ row.student.pk }}" value="{{ row.value }}"
+                   class="score-input {% if row.error %}is-invalid{% endif %}"
+                   {% if locked or not can_enter %}disabled{% endif %}>
+            {% if row.error %}<div class="cell-error">{{ row.error }}</div>{% endif %}
+          </td>
+        </tr>
         {% endfor %}
-        </tbody>
-      </table>
-    </div>
+      </tbody>
+    </table>
   </div>
 
-   {% if rows and can_enter and not locked %}<button type="submit" class="btn btn-school mt-3">Save marks</button>{% endif %}
-  <a href="{% url 'score_index' %}" class="ms-2">Back</a>
+  {% if can_enter and not locked %}
+    <div class="form-actions">
+      <button type="submit" class="btn-ui btn-ui-primary">Save marks</button>
+    </div>
+  {% endif %}
+  {% else %}
+  <div class="table-wrap">
+    {% include 'components/empty.html' with title='No students in this class' message='Students added to this class will appear here.' icon='bi-people' %}
+  </div>
+  {% endif %}
 </form>
+
 {% endblock %}

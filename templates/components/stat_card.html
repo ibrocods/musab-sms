@@ -1,0 +1,6 @@
+<div class="stat-card-ui tone-{{ tone|default:'neutral' }}">
+  <i class="bi {{ icon }} stat-card-icon"></i>
+  <div class="stat-card-label">{{ label }}</div>
+  <div class="stat-card-value num">{{ value }}</div>
+  {% if hint %}<div class="stat-card-hint">{{ hint }}</div>{% endif %}
+</div>

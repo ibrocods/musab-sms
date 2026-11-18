@@ -392,3 +392,177 @@
   color: var(--text-muted);
   text-align: center;
 }
+
+
+
+/* Dashboard */
+.greet-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-strong);
+  margin: 0;
+}
+
+.greet-sub {
+  color: var(--text-muted);
+  margin: var(--space-1) 0 0;
+  font-size: 0.9rem;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.stat-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 128px;
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  border: 1px solid transparent;
+  box-shadow: var(--shadow-card);
+}
+
+.stat-primary { background: var(--school-primary); color: #fff; }
+.stat-accent { background: var(--school-accent); color: #fff; }
+.stat-neutral { background: var(--surface-card); color: var(--text-body); border-color: var(--border); }
+
+.stat-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-top: var(--space-2);
+}
+
+.stat-neutral .stat-value { color: var(--text-strong); }
+
+.stat-hint {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  margin-top: var(--space-1);
+}
+
+/* Large faded icon behind the figure, as in the fees card */
+.stat-bg {
+  position: absolute;
+  right: -6px;
+  bottom: -16px;
+  font-size: 6rem;
+  color: #fff;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.stat-neutral .stat-bg {
+  color: var(--text-strong);
+  opacity: 0.06;
+}
+
+.dash-cols {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.panel {
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-4) var(--space-6) var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.panel-head {
+  font-weight: 600;
+  color: var(--text-strong);
+  margin-bottom: var(--space-4);
+}
+
+.attention {
+  display: block;
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-2);
+  border-radius: var(--radius-md);
+  border-left: 4px solid;
+  background: var(--surface-muted);
+  text-decoration: none;
+}
+
+.attention:hover { filter: brightness(0.98); }
+
+.attention-title {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-strong);
+}
+
+.attention-detail {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.attention-warning { border-color: var(--status-warn); }
+.attention-danger { border-color: var(--status-danger); }
+.attention-info { border-color: var(--status-info); }
+
+.empty {
+  padding: var(--space-4) 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.empty i {
+  color: var(--status-ok);
+  margin-right: var(--space-2);
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: var(--space-3);
+}
+
+.action-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface-card);
+  color: var(--text-strong);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.action-tile i {
+  font-size: 1.3rem;
+  color: var(--school-primary);
+}
+
+.action-tile:hover {
+  border-color: var(--school-primary);
+  background: var(--school-primary-soft);
+  color: var(--text-strong);
+}
+
+@media (max-width: 900px) {
+  .dash-cols { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,432 @@
+/* Shared components. Built once, used on every page. Colours come from tokens.css. */
+
+/* Page header */
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-6);
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-strong);
+  margin: 0;
+}
+
+.page-sub {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: var(--space-1) 0 0;
+}
+
+.page-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* Buttons */
+.btn-ui {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 9px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.btn-ui:hover { opacity: 0.92; }
+
+.btn-ui-primary {
+  background: var(--school-primary);
+  color: #fff;
+}
+
+.btn-ui-secondary {
+  background: var(--surface-card);
+  color: var(--text-strong);
+  border-color: var(--border);
+}
+
+.btn-ui-secondary:hover {
+  background: var(--surface-muted);
+  opacity: 1;
+}
+
+.btn-ui-danger {
+  background: var(--surface-card);
+  color: var(--status-danger);
+  border-color: #F0C2C0;
+}
+
+.btn-ui-danger:hover {
+  background: #FBEAEA;
+  opacity: 1;
+}
+
+.btn-ui-sm {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+}
+
+/* Stat card (the big figure with the faded icon) */
+.stat-card-ui {
+  position: relative;
+  overflow: hidden;
+  min-height: 120px;
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  border: 1px solid transparent;
+}
+
+.stat-card-ui .stat-card-icon {
+  position: absolute;
+  right: -6px;
+  bottom: -16px;
+  font-size: 5.5rem;
+  color: #fff;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.stat-card-ui.tone-primary { background: var(--school-primary); color: #fff; }
+.stat-card-ui.tone-accent { background: var(--school-accent); color: #fff; }
+.stat-card-ui.tone-neutral {
+  background: var(--surface-card);
+  color: var(--text-body);
+  border-color: var(--border);
+}
+.stat-card-ui.tone-neutral .stat-card-icon {
+  color: var(--text-strong);
+  opacity: 0.06;
+}
+
+.stat-card-ui .stat-card-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.stat-card-ui .stat-card-value {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-top: var(--space-2);
+}
+
+.stat-card-ui.tone-neutral .stat-card-value { color: var(--text-strong); }
+
+.stat-card-ui .stat-card-hint {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  margin-top: var(--space-1);
+}
+
+/* Status badges */
+.badge-ui {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-ui::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.badge-ok { background: #E8F3EC; color: var(--status-ok); }
+.badge-warn { background: #FBF4E6; color: var(--status-warn); }
+.badge-danger { background: #FBEAEA; color: var(--status-danger); }
+.badge-info { background: #EAF1FB; color: var(--status-info); }
+.badge-neutral { background: var(--surface-muted); color: var(--text-muted); }
+
+/* Data table */
+.table-ui {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.9rem;
+}
+
+.table-ui th {
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-card);
+}
+
+.table-ui td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border);
+  color: var(--text-body);
+  vertical-align: middle;
+}
+
+.table-ui tbody tr:hover td {
+  background: var(--surface-muted);
+}
+
+.table-ui tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table-ui .num-col {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.table-wrap {
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+/* Empty state */
+.empty-ui {
+  text-align: center;
+  padding: var(--space-8) var(--space-4);
+  color: var(--text-muted);
+}
+
+.empty-ui i {
+  font-size: 2.2rem;
+  color: var(--border);
+  display: block;
+  margin-bottom: var(--space-3);
+}
+
+.empty-ui .empty-title {
+  font-weight: 600;
+  color: var(--text-strong);
+  margin-bottom: var(--space-1);
+}
+
+/* Form field */
+.form-ui .field-ui {
+  margin-bottom: var(--space-4);
+}
+
+.form-ui label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-strong);
+  margin-bottom: var(--space-2);
+}
+
+.form-ui input,
+.form-ui select,
+.form-ui textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--text-strong);
+}
+
+.form-ui input:focus,
+.form-ui select:focus,
+.form-ui textarea:focus {
+  outline: none;
+  border-color: var(--school-primary);
+  box-shadow: 0 0 0 3px var(--school-primary-soft);
+}
+
+.form-ui .field-error {
+  font-size: 0.8rem;
+  color: var(--status-danger);
+  margin-top: var(--space-1);
+}
+
+.form-ui .field-help {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: var(--space-1);
+}
+
+/* Cards and panels (generic container) */
+.card-ui {
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.card-ui-title {
+  font-weight: 600;
+  color: var(--text-strong);
+  margin-bottom: var(--space-4);
+}
+
+/* Page helpers for Students and Scores */
+.search-ui {
+  position: relative;
+  max-width: 420px;
+  margin-bottom: var(--space-4);
+}
+
+.search-ui i {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.search-ui input {
+  width: 100%;
+  padding: 10px 14px 10px 40px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--text-strong);
+}
+
+.search-ui input:focus,
+.lock-form input:focus,
+.score-input:focus {
+  outline: none;
+  border-color: var(--school-primary);
+  box-shadow: 0 0 0 3px var(--school-primary-soft);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0 var(--space-4);
+}
+
+.form-actions {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  margin-top: var(--space-4);
+}
+
+.score-input {
+  width: 120px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--text-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.score-input:disabled {
+  background: var(--surface-muted);
+  color: var(--text-muted);
+}
+
+.score-input.is-invalid {
+  border-color: var(--status-danger);
+}
+
+.cell-error {
+  font-size: 0.8rem;
+  color: var(--status-danger);
+  margin-top: var(--space-1);
+}
+
+.assessment-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.subject-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-4);
+}
+
+.subject-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.subject-card-name {
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.subject-card-class {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.banner-locked {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+  color: var(--text-body);
+  font-size: 0.9rem;
+  margin-bottom: var(--space-4);
+}
+
+.lock-form {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.lock-form input[type="text"] {
+  flex: 1;
+  min-width: 220px;
+  padding: 9px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--text-strong);
+}
+
+.table-actions {
+  text-align: right;
+  white-space: nowrap;
+}

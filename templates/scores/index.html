@@ -1,27 +1,51 @@
 {% extends 'base.html' %}
 {% block title %}Scores{% endblock %}
 {% block content %}
-<h1 class="h4 mb-3">Enter scores{% if term %}: {{ term }}{% endif %}</h1>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Scores</h1>
+    <p class="page-sub">{% if term %}{{ term }}{% else %}No term selected{% endif %}</p>
+  </div>
+</div>
 
 {% if not term %}
-  <div class="alert alert-warning">No current term is set. Ask the administrator to mark one term as current.</div>
-{% elif not entries %}
-  <div class="text-muted">You have no classes to enter scores for this term.</div>
-{% else %}
-  {% for entry in entries %}
-  <div class="card shadow-sm mb-3">
-    <div class="card-body">
-      <h2 class="h6 mb-2">{{ entry.class_subject.subject }} - {{ entry.class_subject.school_class }} {% if entry.locked %}<span class="badge bg-secondary ms-2">Locked</span>{% endif %}</h2>
-      {% for assessment in entry.assessments %}
-        <a class="btn btn-sm btn-outline-secondary me-2 mt-1"
-           href="{% url 'score_entry' entry.class_subject.pk assessment.pk %}">
-          {{ assessment.name }} (out of {{ assessment.max_mark }})
-        </a>
-      {% empty %}
-        <span class="text-muted small">No assessments set up for this subject this term.</span>
-      {% endfor %}
-    </div>
+  <div class="table-wrap">
+    {% include 'components/empty.html' with title='No current term' message='Ask the administrator to mark one term as current.' icon='bi-calendar-x' %}
   </div>
-  {% endfor %}
+{% elif not entries %}
+  <div class="table-wrap">
+    {% include 'components/empty.html' with title='No subjects to show' message='You have no classes to enter scores for this term.' icon='bi-journal-x' %}
+  </div>
+{% else %}
+  <div class="subject-grid">
+    {% for entry in entries %}
+    <div class="card-ui mb-0">
+      <div class="subject-card-head">
+        <div>
+          <div class="subject-card-name">{{ entry.class_subject.subject }}</div>
+          <div class="subject-card-class">{{ entry.class_subject.school_class }}</div>
+        </div>
+        {% if entry.locked %}
+          {% include 'components/badge.html' with label='Locked' tone='info' %}
+        {% else %}
+          {% include 'components/badge.html' with label='Open' tone='warn' %}
+        {% endif %}
+      </div>
+
+      <div class="assessment-chips">
+        {% for assessment in entry.assessments %}
+          <a class="btn-ui btn-ui-secondary btn-ui-sm"
+             href="{% url 'score_entry' entry.class_subject.pk assessment.pk %}">
+            {{ assessment.name }} <span class="text-muted">/ {{ assessment.max_mark }}</span>
+          </a>
+        {% empty %}
+          <span class="text-muted small">No assessments set up for this subject this term.</span>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
 {% endif %}
+
 {% endblock %}

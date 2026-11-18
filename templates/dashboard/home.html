@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="mb-4">
+  <h1 class="greet-title">Good {{ greeting }}, {{ user.get_username.first_name }}</h1>
+  <p class="greet-sub">{{ today|date:"l, j F Y" }}{% if term %} &middot; {{ term }}{% endif %}</p>
+</div>
+
+{% if d.stats %}
+<div class="stat-grid">
+  {% for s in d.stats %}
+    <div class="stat-card stat-{{ s.tone }}">
+      <i class="bi {{ s.icon }} stat-bg"></i>
+      <div class="stat-label">{{ s.label }}</div>
+      <div class="stat-value num">{{ s.value }}</div>
+      {% if s.hint %}<div class="stat-hint">{{ s.hint }}</div>{% endif %}
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="dash-cols">
+  <section class="panel">
+    <div class="panel-head">Needs attention</div>
+    {% for item in d.attention %}
+      <a class="attention attention-{{ item.tone }}" href="{{ item.url|default:'#' }}">
+        <span class="attention-title">{{ item.title }}</span>
+        <span class="attention-detail">{{ item.detail }}</span>
+      </a>
+    {% empty %}
+      <div class="empty"><i class="bi bi-check-circle"></i>Nothing needs your attention right now.</div>
+    {% endfor %}
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">Quick actions</div>
+    <div class="action-grid">
+      {% for action in d.quick %}
+        <a class="action-tile" href="{{ action.url }}"><i class="bi {{ action.icon }}"></i>{{ action.label }}</a>
+      {% empty %}
+        <div class="empty">No actions for your role yet.</div>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+
+{% if d.debtors %}
+<section class="panel">
+  <div class="panel-head">Largest balances this term</div>
+  <div class="table-responsive">
+    <table class="table align-middle mb-0">
+      <thead><tr><th>Student</th><th>Class</th><th class="text-end">Owed</th><th></th></tr></thead>
+      <tbody>
+        {% for row in d.debtors %}
+        <tr>
+          <td>{{ row.student.last_name }} {{ row.student.first_name }}</td>
+          <td>{{ row.student.school_class|default:"-" }}</td>
+          <td class="text-end num">{{ row.balance }}</td>
+          <td class="text-end">
+            <a href="{% url 'fees:statement' row.student.pk %}{% if term %}?term={{ term.pk }}{% endif %}">Open</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endif %}
+{% endblock %}
