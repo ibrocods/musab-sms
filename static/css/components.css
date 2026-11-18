@@ -473,3 +473,42 @@
   border-radius: var(--radius-md);
   color: var(--text-strong);
 }
+
+/* Setup and access pages */
+.setup-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-4);
+}
+
+.setup-tile {
+  display: block;
+  padding: var(--space-6);
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  text-decoration: none;
+  color: var(--text-strong);
+  transition: border-color 0.15s;
+}
+
+.setup-tile:hover {
+  border-color: var(--school-primary);
+  color: var(--text-strong);
+}
+
+.setup-tile i {
+  font-size: 1.6rem;
+  color: var(--school-primary);
+}
+
+.setup-tile-title {
+  font-weight: 600;
+  margin-top: var(--space-3);
+}
+
+.setup-tile-sub {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
