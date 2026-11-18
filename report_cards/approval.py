@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from core.locking import is_locked
 from core.models import ClassSubject
 from core.permissions import can
-from report_cards.calculations import class_results
+from report_cards.calculations import student_row
 from report_cards.cards import get_or_create_draft
 from report_cards.comments import comments_for
 
@@ -22,8 +22,7 @@ def approval_problems(student, term):
     if not class_subjects:
         return ['The class has no subjects set up.']
 
-    results = class_results(school_class, term, [student])
-    row = results[0]
+    row = student_row(student, term)
 
     for entry in row['subjects']:
         subject = entry['subject']
@@ -66,7 +65,7 @@ def build_snapshot(student, term):
     Decimals become strings so the JSON stored in the database stays exact.
     """
     school_class = student.school_class
-    row = class_results(school_class, term, [student])[0]
+    row = student_row(student, term)
 
     subjects = []
     for entry in row['subjects']:

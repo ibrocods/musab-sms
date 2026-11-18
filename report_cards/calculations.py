@@ -1,7 +1,7 @@
 from decimal import ROUND_HALF_UP, Decimal
 
 from core.grading import grade_for
-from core.models import Assessment, ClassSubject, Score
+from core.models import Assessment, ClassSubject, Score, Student
 from core.reports import student_rows
 
 TWO_PLACES = Decimal('0.01')
@@ -119,3 +119,20 @@ def subject_class_average(results, subject):
     if not totals:
         return None
     return _round(sum(totals, ZERO) / len(totals))
+
+def student_row(student, term):
+    """One student's row, ranked against every active student in their class.
+
+    Positions must be worked out against the whole class, never one student on
+    their own, or everyone is first.
+    """
+    if student.school_class is None:
+        return None
+    classmates = list(
+        Student.objects.filter(school_class=student.school_class, is_archived=False)
+        .order_by('last_name', 'first_name')
+    )
+    if all(c.pk != student.pk for c in classmates):
+        classmates.append(student)
+    rows = class_results(student.school_class, term, classmates)
+    return next(r for r in rows if r['student'].pk == student.pk)

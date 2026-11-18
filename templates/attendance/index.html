@@ -1,22 +1,38 @@
 {% extends 'base.html' %}
 {% block title %}Attendance{% endblock %}
 {% block content %}
-<h1 class="h4 mb-3">Attendance</h1>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Attendance</h1>
+    <p class="page-sub">{% if term %}{{ term }}{% else %}No term selected{% endif %}</p>
+  </div>
+</div>
 
 {% if not term %}
-  <div class="alert alert-warning">No current term is set.</div>
+  <div class="table-wrap">
+    {% include 'components/empty.html' with title='No current term' message='Ask the administrator to mark one term as current.' icon='bi-calendar-x' %}
+  </div>
+{% elif not classes %}
+  <div class="table-wrap">
+    {% include 'components/empty.html' with title='No classes to show' message='Classes in your scope will appear here.' icon='bi-collection' %}
+  </div>
+{% else %}
+  <div class="subject-grid">
+    {% for school_class in classes %}
+    <div class="card-ui mb-0">
+      <div class="subject-card-head">
+        <div>
+          <div class="subject-card-name">{{ school_class.name }}</div>
+          <div class="subject-card-class">{{ school_class.level|default:"" }}</div>
+        </div>
+        <a class="btn-ui btn-ui-secondary btn-ui-sm" href="{% url 'attendance_register' school_class.pk %}">
+          <i class="bi bi-calendar-check"></i> Open register
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
 {% endif %}
 
-<div class="card shadow-sm">
-  <ul class="list-group list-group-flush">
-    {% for school_class in classes %}
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        {{ school_class.name }}
-        <a class="btn btn-sm btn-outline-secondary" href="{% url 'attendance_register' school_class.pk %}">Open register</a>
-      </li>
-    {% empty %}
-      <li class="list-group-item text-muted">No classes to show.</li>
-    {% endfor %}
-  </ul>
-</div>
 {% endblock %}

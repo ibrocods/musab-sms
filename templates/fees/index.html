@@ -1,48 +1,65 @@
 {% extends 'base.html' %}
 {% block title %}Fees{% endblock %}
 {% block content %}
-<h1 class="h4 mb-3">Fees{% if term %}: {{ term }}{% endif %}</h1>
 
-<form method="get" class="row g-2 align-items-end mb-4">
-  <div class="col-md-4">
-    <label class="form-label small mb-1" for="term">Term</label>
-    <select id="term" name="term" class="form-select">
-      {% for t in terms %}
-        <option value="{{ t.pk }}" {% if term and t.pk == term.pk %}selected{% endif %}>{{ t }}</option>
-      {% endfor %}
-    </select>
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Fees</h1>
+    <p class="page-sub">{% if term %}{{ term }}{% else %}No term selected{% endif %}</p>
   </div>
-  <div class="col-md-5">
-    <label class="form-label small mb-1" for="q">Find a student</label>
-    <input id="q" type="search" name="q" value="{{ q }}" class="form-control" placeholder="Name or student ID">
+  <div class="page-actions">
+    <a class="btn-ui btn-ui-secondary" href="{% url 'fees:debtors' %}{% if term %}?term={{ term.pk }}{% endif %}">
+      <i class="bi bi-exclamation-circle"></i> Debtors
+    </a>
+    {% if caps.manage_fees %}
+    <a class="btn-ui btn-ui-secondary" href="{% url 'fees:setup' %}{% if term %}?term={{ term.pk }}{% endif %}">
+      <i class="bi bi-sliders"></i> Fee setup
+    </a>
+    {% endif %}
   </div>
-  <div class="col-auto">
-    <button type="submit" class="btn btn-outline-secondary">Search</button>
+</div>
+
+<form method="get" class="lock-form mb-4">
+  <select name="term" class="score-input" style="width: 220px;">
+    {% for t in terms %}
+      <option value="{{ t.pk }}" {% if term and t.pk == term.pk %}selected{% endif %}>{{ t }}</option>
+    {% endfor %}
+  </select>
+  <div class="search-ui mb-0" style="flex: 1; min-width: 240px; max-width: none;">
+    <i class="bi bi-search"></i>
+    <input type="search" name="q" value="{{ q }}" placeholder="Find a student by name or ID">
   </div>
+  <button type="submit" class="btn-ui btn-ui-secondary">Search</button>
 </form>
 
-<div class="d-flex gap-2 mb-4">
-  <a class="btn btn-sm btn-outline-secondary" href="{% url 'fees:debtors' %}{% if term %}?term={{ term.pk }}{% endif %}">Debtors</a>
-  {% if caps.manage_fees %}
-    <a class="btn btn-sm btn-outline-secondary" href="{% url 'fees:setup' %}{% if term %}?term={{ term.pk }}{% endif %}">Fee setup</a>
-  {% endif %}
-</div>
-
 {% if q %}
-<div class="card shadow-sm">
-  <ul class="list-group list-group-flush">
-    {% for student in results %}
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <span>
-          {{ student.student_id }} &middot; {{ student.last_name }} {{ student.first_name }}
-          <span class="text-muted small">{{ student.school_class|default:"No class" }}</span>
-        </span>
-        <a class="btn btn-sm btn-outline-secondary" href="{% url 'fees:statement' student.pk %}{% if term %}?term={{ term.pk }}{% endif %}">Open statement</a>
-      </li>
-    {% empty %}
-      <li class="list-group-item text-muted">No students match that search.</li>
-    {% endfor %}
-  </ul>
-</div>
+  {% if results %}
+  <div class="table-wrap">
+    <table class="table-ui">
+      <thead><tr><th>ID</th><th>Name</th><th>Class</th><th></th></tr></thead>
+      <tbody>
+        {% for student in results %}
+        <tr>
+          <td class="num">{{ student.student_id }}</td>
+          <td>{{ student.last_name }} {{ student.first_name }}</td>
+          <td>{{ student.school_class|default:"No class" }}</td>
+          <td class="table-actions">
+            <a class="btn-ui btn-ui-secondary btn-ui-sm" href="{% url 'fees:statement' student.pk %}{% if term %}?term={{ term.pk }}{% endif %}">Open statement</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="table-wrap">
+    {% include 'components/empty.html' with title='No students match that search' message='Try a different name or ID.' icon='bi-search' %}
+  </div>
+  {% endif %}
+{% else %}
+  <div class="table-wrap">
+    {% include 'components/empty.html' with title='Find a student' message='Search for a student to see their statement, record a payment, or grant a discount.' icon='bi-wallet2' %}
+  </div>
 {% endif %}
+
 {% endblock %}

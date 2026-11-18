@@ -1,22 +1,30 @@
 {% extends 'base.html' %}
 {% block title %}{{ title }}{% endblock %}
 {% block content %}
-<div class="card shadow-sm">
-  <div class="card-body">
-    <h1 class="h4 mb-3">{{ title }}</h1>
-    <form method="post">
-      {% csrf_token %}
-      {% for e in form.non_field_errors %}<div class="alert alert-danger">{{ e }}</div>{% endfor %}
-      {% for field in form %}
-        <div class="mb-3">
-          <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-          {{ field }}
-          {% for e in field.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
-        </div>
-      {% endfor %}
-      <button type="submit" class="btn btn-school">Save</button>
-      <a href="{% url 'fees:setup' %}" class="ms-2">Cancel</a>
-    </form>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ title }}</h1>
+    <p class="page-sub">A fee applies to one class, or to every class if you leave the class blank.</p>
   </div>
 </div>
+
+<div class="card-ui form-ui">
+  <form method="post">
+    {% csrf_token %}
+    {% for e in form.non_field_errors %}
+      <div class="flash flash-danger" role="alert"><span>{{ e }}</span></div>
+    {% endfor %}
+    <div class="form-grid">
+      {% for field in form %}
+        {% include 'components/field.html' with field=field %}
+      {% endfor %}
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn-ui btn-ui-primary">Save fee</button>
+      <a href="{% url 'fees:setup' %}" class="btn-ui btn-ui-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+
 {% endblock %}

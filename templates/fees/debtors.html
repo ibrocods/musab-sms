@@ -1,56 +1,71 @@
 {% extends 'base.html' %}
 {% block title %}Debtors{% endblock %}
 {% block content %}
-<h1 class="h4 mb-3">Debtors{% if term %}: {{ term }}{% endif %}</h1>
 
-<form method="get" class="row g-2 align-items-end mb-3">
-  <div class="col-md-4">
-    <select name="term" class="form-select">
-      {% for t in terms %}
-        <option value="{{ t.pk }}" {% if term and t.pk == term.pk %}selected{% endif %}>{{ t }}</option>
-      {% endfor %}
-    </select>
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Debtors</h1>
+    <p class="page-sub">{% if term %}{{ term }}{% else %}No term selected{% endif %}</p>
   </div>
-  <div class="col-auto">
-    <button type="submit" class="btn btn-outline-secondary">Show term</button>
+  <div class="page-actions">
+    <a href="{% url 'fees:index' %}{% if term %}?term={{ term.pk }}{% endif %}" class="btn-ui btn-ui-secondary">Back to fees</a>
   </div>
-  <div class="col-auto">
-    <a href="{% url 'fees:index' %}{% if term %}?term={{ term.pk }}{% endif %}" class="btn btn-outline-secondary">Back to fees</a>
-  </div>
+</div>
+
+<form method="get" class="lock-form mb-4">
+  <select name="term" class="score-input" style="width: 220px;">
+    {% for t in terms %}
+      <option value="{{ t.pk }}" {% if term and t.pk == term.pk %}selected{% endif %}>{{ t }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="btn-ui btn-ui-secondary">Show term</button>
 </form>
 
 {% if not term %}
-  <div class="alert alert-warning">No term is selected, and no current term is set.</div>
+  <div class="table-wrap">
+    {% include 'components/empty.html' with title='No term selected' message='Choose a term, or ask the administrator to mark one as current.' icon='bi-calendar-x' %}
+  </div>
 {% else %}
-  <div class="card shadow-sm">
-    <div class="table-responsive">
-      <table class="table mb-0 align-middle">
-        <thead>
-          <tr><th>ID</th><th>Name</th><th>Class</th><th class="text-end">Charged</th><th class="text-end">Discount</th><th class="text-end">Paid</th><th class="text-end">Owed</th><th></th></tr>
-        </thead>
-        <tbody>
+  {% if rows %}
+  <div class="stat-grid">
+    {% include 'components/stat_card.html' with label='Total owed' value=total icon='bi-exclamation-circle' tone='danger' hint=rows|length|stringformat:"s"|add:" students" %}
+  </div>
+  {% endif %}
+
+  <div class="table-wrap">
+    <table class="table-ui">
+      <thead>
+        <tr>
+          <th>ID</th><th>Name</th><th>Class</th>
+          <th class="num-col">Charged</th><th class="num-col">Discount</th><th class="num-col">Paid</th>
+          <th class="num-col">Owed</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
         {% for row in rows %}
-          <tr>
-            <td>{{ row.student.student_id }}</td>
-            <td>{{ row.student.last_name }} {{ row.student.first_name }}{% if row.archived %} <span class="badge bg-secondary">Archived</span>{% endif %}</td>
-            <td>{{ row.student.school_class|default:"-" }}</td>
-            <td class="text-end">{{ row.charged }}</td>
-            <td class="text-end">{{ row.discount }}</td>
-            <td class="text-end">{{ row.paid }}</td>
-            <td class="text-end fw-semibold">{{ row.balance }}</td>
-            <td><a class="btn btn-sm btn-outline-secondary" href="{% url 'fees:statement' row.student.pk %}?term={{ term.pk }}">Statement</a></td>
-          </tr>
+        <tr>
+          <td class="num">{{ row.student.student_id }}</td>
+          <td>
+            {{ row.student.last_name }} {{ row.student.first_name }}
+            {% if row.archived %}{% include 'components/badge.html' with label='Archived' tone='neutral' %}{% endif %}
+          </td>
+          <td>{{ row.student.school_class|default:"-" }}</td>
+          <td class="num-col">{{ row.charged }}</td>
+          <td class="num-col">{{ row.discount }}</td>
+          <td class="num-col">{{ row.paid }}</td>
+          <td class="num-col" style="font-weight: 600; color: var(--status-danger);">{{ row.balance }}</td>
+          <td class="table-actions">
+            <a class="btn-ui btn-ui-secondary btn-ui-sm" href="{% url 'fees:statement' row.student.pk %}?term={{ term.pk }}">Statement</a>
+          </td>
+        </tr>
         {% empty %}
-          <tr><td colspan="8" class="text-muted">Nobody owes money this term.</td></tr>
+        <tr><td colspan="8">
+          {% include 'components/empty.html' with title='Nobody owes money this term' message='Balances will show here as fees are charged.' icon='bi-check-circle' %}
+        </td></tr>
         {% endfor %}
-        </tbody>
-        {% if rows %}
-        <tfoot>
-          <tr><th colspan="6">Total owed</th><th class="text-end">{{ total }}</th><th></th></tr>
-        </tfoot>
-        {% endif %}
-      </table>
-    </div>
+      </tbody>
+    </table>
   </div>
 {% endif %}
+
 {% endblock %}

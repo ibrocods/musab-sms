@@ -430,3 +430,7 @@
   text-align: right;
   white-space: nowrap;
 }
+.stat-card-ui.tone-danger {
+  background: var(--status-danger);
+  color: #fff;
+}
