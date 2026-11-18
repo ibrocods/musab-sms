@@ -154,3 +154,11 @@ class PatternSafetyTests(TestCase):
         profile.student_id_pattern = '{year}'
         with self.assertRaises(ValidationError):
             profile.save()
+
+class ReadOnlyScopeTests(TestCase):
+    def test_read_only_staff_see_no_classes_by_default(self):
+        from core.scope import visible_classes
+        user = User.objects.create_user('ro_scope', password='pass12345!')
+        user.groups.add(Group.objects.get_or_create(name='Read-only staff')[0])
+        SchoolClass.objects.create(name='JSS1A')
+        self.assertEqual(visible_classes(user).count(), 0)

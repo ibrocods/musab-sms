@@ -44,7 +44,11 @@ class StaffCreateForm(forms.Form):
         widget=forms.CheckboxSelectMultiple,
         label='Subjects to teach',
     )
-
+    replace = forms.BooleanField(
+        required=False,
+        label='Replace current teachers',
+        help_text='Moves any class or subject already held by someone else to this person.',
+    )
     def clean_username(self):
         username = self.cleaned_data['username'].strip()
         if User.objects.filter(username__iexact=username).exists():
@@ -52,14 +56,14 @@ class StaffCreateForm(forms.Form):
         return username
 
     def clean(self):
+        from .assignments import TEACHER_ROLES
         cleaned = super().clean()
         role = cleaned.get('role')
 
-        # Only the assignment that matches the role is kept
-        if role != 'Class teacher':
+        # Teacher roles can hold a class and subjects. Other roles hold neither.
+        if role not in TEACHER_ROLES:
             cleaned['class_led'] = None
-        if role != 'Subject teacher':
             cleaned['teaching'] = []
-        elif not cleaned.get('teaching'):
+        elif role == 'Subject teacher' and not cleaned.get('teaching'):
             raise ValidationError('Choose at least one class and subject for a subject teacher.')
         return cleaned

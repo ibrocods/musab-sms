@@ -15,13 +15,16 @@ def generate_password(length=10):
     return ''.join(secrets.choice(PASSWORD_ALPHABET) for _ in range(length))
 
 
-def create_staff(*, actor, username, first_name, last_name, email, role, class_led, teaching):
+def create_staff(*, actor, username, first_name, last_name, email, role, class_led, teaching, replace=False):
     """Create a staff account with its role and assignments.
 
     The password is returned once and is never written to the audit log.
     """
+    from .assignments import apply_assignments, check_conflicts
+
     if not can(actor, 'manage_staff'):
         raise PermissionDenied
+    check_conflicts(None, class_led, teaching, replace)
 
     password = generate_password()
     with transaction.atomic():
@@ -30,16 +33,7 @@ def create_staff(*, actor, username, first_name, last_name, email, role, class_l
             first_name=first_name, last_name=last_name,
         )
         user.groups.add(Group.objects.get(name=role))
-
-        if role == 'Class teacher' and class_led:
-            # Replaces any previous class teacher. The class audit entry records the change.
-            class_led.class_teacher = user
-            class_led.save()
-
-        if role == 'Subject teacher':
-            for link in teaching:
-                link.teacher = user
-                link.save()
+        apply_assignments(user, class_led, teaching)
 
         AuditLog.objects.create(
             user=actor,
@@ -51,7 +45,6 @@ def create_staff(*, actor, username, first_name, last_name, email, role, class_l
             changes={'role': role},
         )
     return user, password
-
 
 def staff_rows():
     """Everyone with a staff role, with the classes and subjects they're responsible for."""

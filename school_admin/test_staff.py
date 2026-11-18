@@ -97,11 +97,22 @@ class StaffCreateTests(StaffSetup):
         response = self.create(self.login(teacher))
         self.assertEqual(response.status_code, 403)
 
-    def test_reassigning_a_class_replaces_its_teacher(self):
+    def test_reassigning_a_class_needs_replace_ticked(self):
         old = self.make_user('old_ct', 'Class teacher')
         self.jss1a.class_teacher = old
         self.jss1a.save()
         self.create(self.login(self.admin), role='Class teacher', class_led=self.jss1a.pk)
+        self.jss1a.refresh_from_db()
+        self.assertEqual(self.jss1a.class_teacher.username, 'old_ct')
+
+    def test_reassigning_a_class_replaces_its_teacher_when_ticked(self):
+        old = self.make_user('old_ct', 'Class teacher')
+        self.jss1a.class_teacher = old
+        self.jss1a.save()
+        self.create(
+            self.login(self.admin), role='Class teacher',
+            class_led=self.jss1a.pk, replace=True,
+        )
         self.jss1a.refresh_from_db()
         self.assertEqual(self.jss1a.class_teacher.username, 'newstaff')
 
@@ -156,3 +167,37 @@ class StaffListTests(StaffSetup):
         response = client.get(reverse('school_admin:staff_list'))
         self.assertContains(response, 'newstaff')
         self.assertContains(response, 'JSS1A')
+
+
+class AssignmentConflictTests(StaffSetup):
+    def test_taken_subject_is_refused_without_replace(self):
+        other = self.make_user('other_teacher', 'Subject teacher')
+        self.maths_link.teacher = other
+        self.maths_link.save()
+        response = self.create(
+            self.login(self.admin), role='Subject teacher', teaching=[self.maths_link.pk],
+        )
+        self.assertEqual(response.status_code, 200)
+        self.maths_link.refresh_from_db()
+        self.assertEqual(self.maths_link.teacher, other)
+
+    def test_taken_subject_moves_when_replace_is_ticked(self):
+        other = self.make_user('other_teacher', 'Subject teacher')
+        self.maths_link.teacher = other
+        self.maths_link.save()
+        self.create(
+            self.login(self.admin), role='Subject teacher',
+            teaching=[self.maths_link.pk], replace=True,
+        )
+        self.maths_link.refresh_from_db()
+        self.assertEqual(self.maths_link.teacher.username, 'newstaff')
+
+    def test_class_teacher_can_also_teach_subjects(self):
+        self.create(
+            self.login(self.admin), role='Class teacher',
+            class_led=self.jss1a.pk, teaching=[self.english_link.pk],
+        )
+        self.jss1a.refresh_from_db()
+        self.english_link.refresh_from_db()
+        self.assertEqual(self.jss1a.class_teacher.username, 'newstaff')
+        self.assertEqual(self.english_link.teacher.username, 'newstaff')

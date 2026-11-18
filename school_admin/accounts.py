@@ -100,8 +100,13 @@ def reset_password(*, actor, target):
     return password
 
 
-def update_details(*, actor, target, first_name, last_name, email, role, class_led, teaching):
-    """Change name, email, role and assignments. Changing a role clears the old assignments."""
+def update_details(*, actor, target, first_name, last_name, email, role, class_led, teaching, replace=False):
+    """Change name, email, role and assignments.
+
+    Assignments are only kept for teacher roles. Anything no longer ticked is released.
+    """
+    from .assignments import TEACHER_ROLES, apply_assignments, check_conflicts
+
     if not can(actor, 'manage_staff'):
         raise PermissionDenied
     if role not in ROLE_CAPABILITIES:
@@ -109,6 +114,10 @@ def update_details(*, actor, target, first_name, last_name, email, role, class_l
     if target == actor and role != 'School administrator' and _is_administrator(target):
         if _active_administrators().count() <= 1:
             raise ValidationError('You are the only active School administrator and cannot remove that role.')
+
+    if role not in TEACHER_ROLES:
+        class_led, teaching = None, []
+    check_conflicts(target.pk, class_led, teaching, replace)
 
     with transaction.atomic():
         changes = {}
@@ -125,22 +134,20 @@ def update_details(*, actor, target, first_name, last_name, email, role, class_l
                 target.groups.remove(current)
             target.groups.add(Group.objects.get(name=role))
             changes['role'] = [current.name if current else None, role]
-            _release_assignments(target)
 
-        if role == 'Class teacher' and class_led:
-            if class_led.class_teacher_id != target.pk:
-                class_led.class_teacher = target
-                class_led.save()
-        if role == 'Subject teacher':
-            wanted = set(link.pk for link in teaching)
-            for link in ClassSubject.objects.filter(teacher=target):
-                if link.pk not in wanted:
-                    link.teacher = None
-                    link.save()
-            for link in teaching:
-                if link.teacher_id != target.pk:
-                    link.teacher = target
-                    link.save()
+        if role in TEACHER_ROLES:
+            # Release what is no longer ticked, then apply the current choices
+            keep_lead = class_led.pk if class_led else None
+            for school_class in SchoolClass.objects.filter(class_teacher=target).exclude(pk=keep_lead):
+                school_class.class_teacher = None
+                school_class.save()
+            wanted = [link.pk for link in teaching]
+            for link in ClassSubject.objects.filter(teacher=target).exclude(pk__in=wanted):
+                link.teacher = None
+                link.save()
+            apply_assignments(target, class_led, teaching)
+        else:
+            _release_assignments(target)
 
         if changes:
             _log(actor, target, 'update', changes)

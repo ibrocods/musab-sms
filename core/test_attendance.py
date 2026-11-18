@@ -118,7 +118,7 @@ class AttendanceViewTests(AttendanceSetup):
         response = self.login(self.readonly).post(
             self.register_url(self.jss1a), {f'status_{self.ada.pk}': 'P'},
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertIn(response.status_code, (403, 404))
 
     def test_unknown_status_code_is_rejected(self):
         response = self.login(self.ct).post(

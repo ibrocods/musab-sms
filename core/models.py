@@ -426,3 +426,19 @@ class NonSchoolDay(models.Model):
 
     def __str__(self):
         return f'{self.date:%Y-%m-%d} {self.description}'
+
+
+class AccountSecurity(models.Model):
+    """Per-user security state. Created on demand, one row per account."""
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='security',
+    )
+    must_change_password = models.BooleanField(default=False)
+    password_changed_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f'Security: {self.user.get_username()}'
+
+    def delete(self, *args, **kwargs):
+        raise PermissionError('Security records cannot be deleted.')

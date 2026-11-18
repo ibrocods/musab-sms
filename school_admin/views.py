@@ -46,17 +46,19 @@ def staff_create(request):
                 role=data['role'],
                 class_led=data['class_led'],
                 teaching=teaching,
+                replace=data['replace'],
             )
+        except ValidationError as error:
+            for message in error.messages:
+                form.add_error(None, message)
         except PermissionDenied:
             form.add_error(None, 'You do not have permission to add staff.')
         else:
             summary = []
-            if data['role'] == 'Class teacher' and data['class_led']:
+            if data['class_led']:
                 summary.append(f"Class teacher of {data['class_led'].name}")
             for link in teaching:
                 summary.append(f'Teaches {link.subject.name} in {link.school_class.name}')
-
-            # Held in the session only until the confirmation page is opened, then removed
             request.session['new_staff'] = {
                 'username': user.get_username(),
                 'password': password,
@@ -87,14 +89,14 @@ def staff_edit(request, user_pk):
         (g.name for g in target.groups.all() if g.name in ROLE_CAPABILITIES), '',
     )
     if request.method == 'POST':
+        from .assignments import TEACHER_ROLES
         role = request.POST.get('role', '')
         class_led = None
-        if role == 'Class teacher' and request.POST.get('class_led'):
-            class_led = SchoolClass.objects.filter(pk=request.POST['class_led']).first()
         teaching = []
-        if role == 'Subject teacher':
-            ids = request.POST.getlist('teaching')
-            teaching = list(ClassSubject.objects.filter(pk__in=ids))
+        if role in TEACHER_ROLES:
+            if request.POST.get('class_led'):
+                class_led = SchoolClass.objects.filter(pk=request.POST['class_led']).first()
+            teaching = list(ClassSubject.objects.filter(pk__in=request.POST.getlist('teaching')))
         try:
             update_details(
                 actor=request.user, target=target,
@@ -102,13 +104,13 @@ def staff_edit(request, user_pk):
                 last_name=request.POST.get('last_name', '').strip(),
                 email=request.POST.get('email', '').strip(),
                 role=role, class_led=class_led, teaching=teaching,
+                replace=bool(request.POST.get('replace')),
             )
         except (ValidationError, PermissionDenied) as error:
             messages.error(request, ' '.join(getattr(error, 'messages', ['You do not have permission.'])))
         else:
             messages.success(request, 'Details saved.')
             return redirect('school_admin:staff_list')
-
     return render(request, 'school_admin/staff_edit.html', {
         'target': target,
         'current_role': current_role,
