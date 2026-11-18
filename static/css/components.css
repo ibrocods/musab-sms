@@ -434,3 +434,42 @@
   background: var(--status-danger);
   color: #fff;
 }
+
+/* Staff forms */
+.role-section[hidden] {
+  display: none;
+}
+
+.check-list {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  color: var(--text-body);
+  cursor: pointer;
+  margin: 0;
+}
+
+.check-row input {
+  accent-color: var(--school-primary);
+}
+
+.temp-password {
+  display: inline-block;
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: var(--space-4) var(--space-6);
+  background: var(--surface-muted);
+  border-radius: var(--radius-md);
+  color: var(--text-strong);
+}

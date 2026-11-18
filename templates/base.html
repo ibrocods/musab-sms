@@ -71,6 +71,14 @@
         <i class="bi bi-bar-chart"></i><span>Attendance report</span>
       </a>
       {% endif %}
+            {% if caps.manage_staff or caps.manage_school_setup or caps.view_audit_log %}
+      <div class="nav-group-label">Administration</div>
+      {% endif %}
+      {% if caps.manage_staff %}
+      <a class="nav-item {% if ns == 'school_admin' %}active{% endif %}" href="{% url 'school_admin:staff_list' %}">
+        <i class="bi bi-person-gear"></i><span>Staff</span>
+      </a>
+      {% endif %}
     </nav>
 
     <div class="sidebar-footer">

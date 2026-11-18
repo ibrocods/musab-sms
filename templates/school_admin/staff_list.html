@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Staff{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Staff</h1>
+    <p class="page-sub">Everyone who can sign in, and what they're responsible for.</p>
+  </div>
+  <div class="page-actions">
+    <a href="{% url 'school_admin:staff_create' %}" class="btn-ui btn-ui-primary">
+      <i class="bi bi-person-plus"></i> Add staff
+    </a>
+  </div>
+</div>
+
+{% if rows %}
+<div class="table-wrap">
+  <table class="table-ui">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Username</th>
+        <th>Role</th>
+        <th>Class led</th>
+        <th>Teaches</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <td>{{ row.user.last_name }} {{ row.user.first_name }}</td>
+        <td class="num">{{ row.user.get_username }}</td>
+        <td>{{ row.role }}</td>
+        <td>
+          {% for c in row.classes %}<span class="badge-ui badge-neutral me-1">{{ c }}</span>
+          {% empty %}<span class="text-muted">-</span>{% endfor %}
+        </td>
+        <td>
+          {% for s in row.subjects %}<div class="small">{{ s }}</div>
+          {% empty %}<span class="text-muted">-</span>{% endfor %}
+        </td>
+        <td>
+          {% if row.user.is_active %}
+            {% include 'components/badge.html' with label='Active' tone='ok' %}
+          {% else %}
+            {% include 'components/badge.html' with label='Inactive' tone='neutral' %}
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="table-wrap">
+  {% include 'components/empty.html' with title='No staff yet' message='Add the first staff member to get started.' icon='bi-people' %}
+</div>
+{% endif %}
+
+{% endblock %}

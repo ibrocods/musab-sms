@@ -164,7 +164,8 @@ def build_dashboard(user, term):
         data['quick'].append(_tile('Record payment', reverse('fees:index'), 'bi-wallet2'))
     if can(user, 'manage_fees'):
         data['quick'].append(_tile('Fee setup', reverse('fees:setup'), 'bi-sliders'))
-
+    if can(user, 'manage_staff'):
+        data['quick'].append(_tile('Staff', reverse('school_admin:staff_list'), 'bi-person-gear'))
     # Tidy up: no duplicate tiles, at most six, and the most urgent items first
     seen, unique = set(), []
     for tile in data['quick']:

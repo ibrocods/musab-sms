@@ -39,5 +39,6 @@ path('reports/attendance/', report_views.attendance_report, name='attendance_rep
 path('reports/attendance/csv/', report_views.attendance_report_csv, name='attendance_report_csv'),
 path('fees/', include('fees.urls')),
 path('report-cards/', include('report_cards.urls')),
+path('administration/', include('school_admin.urls')),
 
 ]

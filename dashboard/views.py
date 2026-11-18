@@ -21,7 +21,3 @@ def home(request):
         'term': term,
     })
 
-@login_required
-@require_GET
-def showcase(request):
-    return render(request, 'dashboard/showcase.html', {})

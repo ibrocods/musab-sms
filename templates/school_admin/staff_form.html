@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Add staff{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Add staff</h1>
+    <p class="page-sub">The system creates a temporary password and shows it once.</p>
+  </div>
+</div>
+
+<div class="card-ui form-ui">
+  <form method="post" novalidate>
+    {% csrf_token %}
+
+    {% for e in form.non_field_errors %}
+      <div class="flash flash-danger" role="alert"><span>{{ e }}</span></div>
+    {% endfor %}
+
+    <div class="form-grid">
+      {% include 'components/field.html' with field=form.first_name %}
+      {% include 'components/field.html' with field=form.last_name %}
+      {% include 'components/field.html' with field=form.username %}
+      {% include 'components/field.html' with field=form.email %}
+      {% include 'components/field.html' with field=form.role %}
+    </div>
+
+    <div class="role-section" id="section-class">
+      {% include 'components/field.html' with field=form.class_led %}
+    </div>
+
+    <div class="role-section" id="section-subjects">
+      <div class="field-ui">
+        <label>{{ form.teaching.label }}</label>
+        <div class="check-list">
+          {% for choice in form.teaching %}
+            <label class="check-row">{{ choice.tag }} <span>{{ choice.choice_label }}</span></label>
+          {% endfor %}
+        </div>
+        {% for e in form.teaching.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn-ui btn-ui-primary">Create account</button>
+      <a href="{% url 'school_admin:staff_list' %}" class="btn-ui btn-ui-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<script>
+  (function () {
+    const role = document.getElementById('id_role');
+    const classSection = document.getElementById('section-class');
+    const subjectSection = document.getElementById('section-subjects');
+    function syncRole() {
+      classSection.hidden = role.value !== 'Class teacher';
+      subjectSection.hidden = role.value !== 'Subject teacher';
+    }
+    role.addEventListener('change', syncRole);
+    syncRole();
+  })();
+</script>
+{% endblock %}

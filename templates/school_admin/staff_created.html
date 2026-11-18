@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Account created{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Account created</h1>
+    <p class="page-sub">{{ new.username }} can now sign in.</p>
+  </div>
+  <div class="page-actions">
+    <a href="{% url 'school_admin:staff_list' %}" class="btn-ui btn-ui-secondary">Back to staff</a>
+  </div>
+</div>
+
+<div class="card-ui">
+  <div class="card-ui-title">Temporary password</div>
+  <div class="temp-password num">{{ new.password }}</div>
+  <p class="text-muted small mt-3">
+    Give this to the staff member in person. It won't be shown again, so note it down now.
+  </p>
+</div>
+
+<div class="card-ui">
+  <div class="card-ui-title">Responsibilities</div>
+  <ul class="mb-0">
+    {% for item in new.summary %}<li>{{ item }}</li>
+    {% empty %}<li class="text-muted">No classes or subjects assigned for this role.</li>{% endfor %}
+  </ul>
+</div>
+
+{% endblock %}
